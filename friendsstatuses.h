@@ -1,0 +1,33 @@
+#ifndef FRIENDSSTATUSES_H
+#define FRIENDSSTATUSES_H
+
+#include <QObject>
+#include <QSqlDatabase>
+
+class FriendsStatuses : public QObject
+{
+    Q_OBJECT
+public:
+    explicit FriendsStatuses(QObject *parent = nullptr);
+
+signals:
+    //void statusChanged();
+    void availabilityStatusChanged(quint32, bool);
+    void messageStatusChanged(quint32, bool);
+
+
+public slots:
+    void run();
+
+private:
+    QSqlDatabase database;
+    QList<bool> friendsList;
+    QList<bool> messagesStatusesList;
+    void checkStatuses();
+    QList<bool> getFriendsListFromDatabase();
+    QList<bool> getMessagesStatusesListFromDatabase();
+    QMap<quint32, bool> getAvailabilityFriendsMap();
+    QMap<quint32, bool> getMessagesStatusesMap();
+};
+
+#endif // FRIENDSSTATUSES_H
