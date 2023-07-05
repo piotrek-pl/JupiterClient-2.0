@@ -38,6 +38,7 @@ private:
     void getAllMessagesFromDatabaseAndDisplay();
     void makeThread();
     void closeEvent(QCloseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
     void changeNewMessageStateToRead();
 };
 

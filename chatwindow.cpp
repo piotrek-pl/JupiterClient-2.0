@@ -1,3 +1,4 @@
+#include <QMouseEvent>
 #include "chatwindow.h"
 #include "ui_chatwindow.h"
 #include "mainwindow.h"
@@ -29,7 +30,8 @@ ChatWindow::ChatWindow(quint32 converserId, QWidget *parent) :
 ChatWindow::~ChatWindow()
 {
     delete ui;
-    MainWindow::activeWindowsList.removeOne(converserId);
+    //MainWindow::activeWindowsList.removeOne(converserId);
+    MainWindow::activeChatWindowsMap.remove(converserId);
 
     if (MainWindow::isNewMessage(converserId))
     {
@@ -200,4 +202,17 @@ void ChatWindow::closeEvent(QCloseEvent *event)
     //this->deleteLater(); // nie zdaza zwalniac zasobow (polaczenia z baza danych)
     this->~ChatWindow();
 }
+
+// dodaj jeszcze klikniecie na kazdy z elementow
+void ChatWindow::mousePressEvent(QMouseEvent *event)
+{
+
+    if (QObject::sender() == ui->chatDisplay)
+           qDebug() << "nacisnieto na chatDisplay";
+
+
+    MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
+    qDebug() << "nacisnieto przycisk myszy";
+}
+
 

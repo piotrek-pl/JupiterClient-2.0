@@ -91,4 +91,7 @@
  </widget>
  <resources/>
  <connections/>
+ <slots>
+  <signal>windowClicked()</signal>
+ </slots>
 </ui>

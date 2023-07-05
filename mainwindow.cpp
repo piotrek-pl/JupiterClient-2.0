@@ -8,6 +8,7 @@
 #include "extendedqlistwidgetitem.h"
 
 QList<quint32> MainWindow::activeWindowsList;
+QMap<quint32, ChatWindow *> MainWindow::activeChatWindowsMap;
 QTcpSocket *MainWindow::socket;
 QList<Friend *> MainWindow::friends;
 
@@ -104,7 +105,7 @@ void MainWindow::fillOutFriendsListWidget()
                                                                 friendPtr->getAlias(), friendPtr->getId()));
                 break;
             case Friend::State::AvailableWithMessageOpenChatWindow:
-                availableFriendsList.append(new ExtendedQListWidgetItem(QIcon(":/images/available_message_icon.png"),
+                availableFriendsList.append(new ExtendedQListWidgetItem(QIcon(":/images/available_icon.png"),
                                                             friendPtr->getAlias(), friendPtr->getId()));
 
                 break;
@@ -190,7 +191,8 @@ void MainWindow::changeAvailabilityStatus(quint32 id, bool available)
 void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
 {
     qDebug() << "MainWindow::changeMessageStatus() - wykonało się";
-    if (activeWindowsList.contains(id))
+    //if (activeWindowsList.contains(id))
+    if (activeChatWindowsMap.contains(id))
     {
         qDebug() << "okno" << id << "aktywne";
 
@@ -201,7 +203,10 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
         // oznacz wiadomość jako przeczytaną
         // tj. changeMessageStateToRead(id);
         // w innym razie niech okienko zacznie migać
-        //
+        // jak kliknę na okienko, albo wpiszę coś do okna czatu
+        // to wtedy changeMessageStateToRead(id)
+        ChatWindow *chatWindow = activeChatWindowsMap.value(id);
+        chatWindow->setWindowIcon(QIcon(":/images/available_message_icon.png"));
 
         for (Friend* friendPtr : friends)
         {
@@ -255,21 +260,21 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
     qDebug() << "MainWindow::on_listWidget_itemDoubleClicked() - on user:" << extendedItem->getId();
 
-    if (!activeWindowsList.contains(friendId))
+    //if (!activeWindowsList.contains(friendId))
+    if (!activeChatWindowsMap.value(friendId))
     {
         if (isNewMessage(friendId))
             changeMessageStatusInTheDatabaseToRead(friendId);
 
         //changeMessageStatusInTheDatabaseToRead(friendId);
 
-        activeWindowsList.push_back(friendId);
-        qDebug() << "activeWindowList.push_back(" << friendId << ")";
+        //activeWindowsList.push_back(friendId);
+        //qDebug() << "activeWindowList.push_back(" << friendId << ")";
 
         //ChatWindow *chatWindow = new ChatWindow(friendId, this);
         //chatWindow->show();
-        chatWindowsMap.insert(friendId, new ChatWindow(friendId, this));
-        ChatWindow *chatWindow = chatWindowsMap.value(friendId);
-        chatWindowsMap.value(friendId)->show();
+        activeChatWindowsMap.insert(friendId, new ChatWindow(friendId, this));
+        activeChatWindowsMap.value(friendId)->show();
 
 
 

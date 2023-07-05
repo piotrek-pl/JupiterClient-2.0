@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 
 public:
     static QList<quint32> activeWindowsList;
-    QMap<quint32, ChatWindow *> chatWindowsMap;
+    static QMap<quint32, ChatWindow *> activeChatWindowsMap;
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     static QTcpSocket* getSocket() { return socket; }
