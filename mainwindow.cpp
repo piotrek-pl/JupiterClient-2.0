@@ -3,7 +3,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "friendsstatuses.h"
-#include "queries.h"
 #include "loginpage.h"
 #include "chatwindow.h"
 #include "extendedqlistwidgetitem.h"
@@ -11,7 +10,6 @@
 QList<quint32> MainWindow::activeWindowsList;
 QTcpSocket *MainWindow::socket;
 QList<Friend *> MainWindow::friends;
-//QMap<quint32, Friend *> MainWindow::friendsMap;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,20 +18,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connectToServer();
     friends = getFriendsList();
-    //friendsMap = getFriendsMap();
     fillOutFriendsListWidget();
-    //createFriendsList();
     makeThread();
-
-
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-
 
 void MainWindow::connectToServer()
 {
@@ -59,46 +51,6 @@ void MainWindow::sendFirstMessage(quint32 senderId)
     stream << senderId << NULL << NULL;
 }
 
-/*QMap<quint32, Friend *> MainWindow::getFriendsMap()
-{
-    QMap<quint32, Friend *> friendsMap;
-    QString friendsQuery = QString("SELECT %1_friends.id, "
-                                          "%1_friends.username, "
-                                          "%1_friends.alias, "
-                                          "%1_friends.is_new_message, "
-                                          "users.available "
-                                          "FROM %1_friends "
-                                          "JOIN users ON %1_friends.id = users.id")
-                                   .arg(LoginPage::getUser().getId());
-
-    QSqlDatabase database(LoginPage::getDatabase());
-    QSqlQuery query(database);
-
-    if (query.exec(friendsQuery))
-    {
-        while (query.next())
-        {
-            friendsMap[query.value("id").toUInt()] = new Friend(query.value("id").toUInt(),
-                                                                query.value("username").toString(),
-                                                                query.value("alias").toString(),
-                                                                query.value("is_new_message").toBool(),
-                                                                query.value("available").toBool());
-        }
-    }
-
-    qDebug() << "Jestem w metodzie getFriendsMap()";
-
-    QMap<quint32, Friend *>::const_iterator iter;
-    for (iter = friendsMap.constBegin(); iter != friendsMap.constEnd(); ++iter)
-    {
-        Friend *friendPtr = iter.value();
-
-        qDebug() << "\t" << friendPtr->getUsername() << "- available: " << friendPtr->isAvailable();
-    }
-
-    return friendsMap;
-
-}*/
 QList<Friend *> MainWindow::getFriendsList()
 {
     QList<Friend *> friends;
@@ -134,55 +86,6 @@ QList<Friend *> MainWindow::getFriendsList()
     return friends;
 }
 
-
-/*void MainWindow::fillOutFriendsListWidget()
-{
-    QList<QListWidgetItem *> availableFriendsList;
-    QList<QListWidgetItem *> unavailableFriendsList;
-    QMap<quint32, Friend *>::const_iterator iter;
-
-    for (iter = friendsMap.constBegin(); iter != friendsMap.constEnd(); ++iter)
-    {
-        Friend *friendPtr = iter.value();
-        switch (friendPtr->getState())
-        {
-            case Friend::State::AvailableNoMessage:
-                availableFriendsList.append(new QListWidgetItem(QIcon(":/images/available_icon.png"),
-                                                                friendPtr->getAlias()));
-                break;
-            case Friend::State::AvailableWithMessage:
-                availableFriendsList.append(new QListWidgetItem(QIcon(":/images/available_message_icon.png"),
-                                                                friendPtr->getAlias()));
-                break;
-            case Friend::State::UnavailableNoMessage:
-                unavailableFriendsList.append(new QListWidgetItem(QIcon(":/images/unavailable_icon.png"),
-                                                                    friendPtr->getAlias()));
-                break;
-            case Friend::State::UnavailableWithMessage:
-                unavailableFriendsList.append(new QListWidgetItem(QIcon(":/images/unavailable_message_icon.png"),
-                                                                    friendPtr->getAlias()));
-        }
-    }
-
-    std::sort(availableFriendsList.begin(), availableFriendsList.end(),
-              [](QListWidgetItem* item1, QListWidgetItem* item2) { return item1->text() < item2->text(); });
-    std::sort(unavailableFriendsList.begin(), unavailableFriendsList.end(),
-              [](QListWidgetItem* item1, QListWidgetItem* item2) { return item1->text() < item2->text(); });
-
-    for (QListWidgetItem* item : availableFriendsList)
-    {
-        ui->friendsListWidget->addItem(item);
-        qDebug() << item->text();
-    }
-
-    for (QListWidgetItem* item : unavailableFriendsList)
-    {
-        ui->friendsListWidget->addItem(item);
-        qDebug() << item->text();
-    }
-
-}*/
-
 void MainWindow::fillOutFriendsListWidget()
 {
     QList<QListWidgetItem *> availableFriendsList;
@@ -200,6 +103,11 @@ void MainWindow::fillOutFriendsListWidget()
                 availableFriendsList.append(new ExtendedQListWidgetItem(QIcon(":/images/available_message_icon.png"),
                                                                 friendPtr->getAlias(), friendPtr->getId()));
                 break;
+            case Friend::State::AvailableWithMessageOpenChatWindow:
+                availableFriendsList.append(new ExtendedQListWidgetItem(QIcon(":/images/available_message_icon.png"),
+                                                            friendPtr->getAlias(), friendPtr->getId()));
+
+                break;
             case Friend::State::UnavailableNoMessage:
                 unavailableFriendsList.append(new ExtendedQListWidgetItem(QIcon(":/images/unavailable_icon.png"),
                                                                     friendPtr->getAlias(), friendPtr->getId()));
@@ -207,15 +115,17 @@ void MainWindow::fillOutFriendsListWidget()
             case Friend::State::UnavailableWithMessage:
                 unavailableFriendsList.append(new ExtendedQListWidgetItem(QIcon(":/images/unavailable_message_icon.png"),
                                                                     friendPtr->getAlias(), friendPtr->getId()));
+                break;
+            case Friend::State::UnavailableWithMessageOpenChatWindow:
+                unavailableFriendsList.append(new ExtendedQListWidgetItem(QIcon(":/images/unavailable_icon.png"),
+                                                                friendPtr->getAlias(), friendPtr->getId()));
         }
     }
 
-    std::sort(availableFriendsList.begin(), availableFriendsList.end(),
-              [](QListWidgetItem* item1, QListWidgetItem* item2) { return item1->text() < item2->text(); });
-    std::sort(unavailableFriendsList.begin(), unavailableFriendsList.end(),
-              [](QListWidgetItem* item1, QListWidgetItem* item2) { return item1->text() < item2->text(); });
+    auto compareItems = [](QListWidgetItem* item1, QListWidgetItem* item2) { return item1->text() < item2->text(); };
+    std::sort(availableFriendsList.begin(), availableFriendsList.end(), compareItems);
+    std::sort(unavailableFriendsList.begin(), unavailableFriendsList.end(), compareItems);
 
-    // ONLY TO DEBUG
     for (QListWidgetItem* item : availableFriendsList)
     {
         ui->friendsListWidget->addItem(item);
@@ -227,53 +137,8 @@ void MainWindow::fillOutFriendsListWidget()
         ui->friendsListWidget->addItem(item);
         qDebug() << item->text();
     }
+    qDebug() << "MainWindow::fillOutFriendsListWidget() - wykonało się";
 }
-
-/*void MainWindow::fillOutFriendsListWidget()
-{
-    QList<QListWidgetItem *> availableFriendsList;
-    QList<QListWidgetItem *> unavailableFriendsList;
-
-    for (const Friend *friendPtr : friends)
-    {
-        switch (friendPtr->getState())
-        {
-            case Friend::State::AvailableNoMessage:
-                availableFriendsList.append(new QListWidgetItem(QIcon(":/images/available_icon.png"),
-                                                                friendPtr->getAlias()));
-                break;
-            case Friend::State::AvailableWithMessage:
-                availableFriendsList.append(new QListWidgetItem(QIcon(":/images/available_message_icon.png"),
-                                                                friendPtr->getAlias()));
-                break;
-            case Friend::State::UnavailableNoMessage:
-                unavailableFriendsList.append(new QListWidgetItem(QIcon(":/images/unavailable_icon.png"),
-                                                                    friendPtr->getAlias()));
-                break;
-            case Friend::State::UnavailableWithMessage:
-                unavailableFriendsList.append(new QListWidgetItem(QIcon(":/images/unavailable_message_icon.png"),
-                                                                    friendPtr->getAlias()));
-        }
-    }
-
-    std::sort(availableFriendsList.begin(), availableFriendsList.end(),
-              [](QListWidgetItem* item1, QListWidgetItem* item2) { return item1->text() < item2->text(); });
-    std::sort(unavailableFriendsList.begin(), unavailableFriendsList.end(),
-              [](QListWidgetItem* item1, QListWidgetItem* item2) { return item1->text() < item2->text(); });
-
-    // ONLY TO DEBUG
-    for (QListWidgetItem* item : availableFriendsList)
-    {
-        ui->friendsListWidget->addItem(item);
-        qDebug() << item->text();
-    }
-
-    for (QListWidgetItem* item : unavailableFriendsList)
-    {
-        ui->friendsListWidget->addItem(item);
-        qDebug() << item->text();
-    }
-}*/
 
 void MainWindow::reloadFriendsListWidget()
 {
@@ -288,69 +153,14 @@ void MainWindow::makeThread()
     friendsStatuses->moveToThread(thread);
 
     QObject::connect(thread, &QThread::started, friendsStatuses, &FriendsStatuses::run);
-    //QObject::connect(friendsStatuses, &FriendsStatuses::statusChanged, this, &MainWindow::updateFriendsList);
     QObject::connect(friendsStatuses, &FriendsStatuses::availabilityStatusChanged, this, &MainWindow::changeAvailabilityStatus);
-    QObject::connect(friendsStatuses, &FriendsStatuses::messageStatusChanged, this, &MainWindow::changeMessageStatus);
+    QObject::connect(friendsStatuses, &FriendsStatuses::messageStatusChanged, this, &MainWindow::changeFriendMessageStatus);
     // NIE WIEM JAKA JEST NAZWA this DLATEGO ZROBIŁEM TO W TYM PLIKU, A NIE W friensstatuses.cpp (mainWindow?)
 
     thread->start();
 }
 
 
-
-
-void MainWindow::createFriendsList()
-{
-    Queries queries;
-    QSqlDatabase database(LoginPage::getDatabase());
-    QSqlQuery query(database);
-
-    if (query.exec(queries.availableFriendsQuery))
-    {
-        while (query.next())
-        {
-            QListWidgetItem *item = new QListWidgetItem;
-
-            if (query.value("is_new_message").toBool() == true)
-            {
-                if (!activeWindowsList.contains(query.value("id").toUInt()))
-                {
-                    addFriendToList(item, query.value("username_alias").toString(),
-                                    QIcon(":/images/available_message_icon.png"));
-                }
-                else //////// ++++++++
-                    addFriendToList(item, query.value("username_alias").toString(),
-                                    QIcon(":/images/available_icon.png"));
-            }
-            else
-            {
-                addFriendToList(item, query.value("username_alias").toString(),
-                                QIcon(":/images/available_icon.png"));
-            }
-        }
-    }
-    if (query.exec(queries.unavailableFriendsQuery))
-    {
-        while (query.next())
-        {
-            QListWidgetItem *item = new QListWidgetItem;
-
-            if (query.value("is_new_message").toBool() == true)
-            {
-                if (!activeWindowsList.contains(query.value("id").toUInt()))
-                {
-                    addFriendToList(item, query.value("username_alias").toString(),
-                                    QIcon(":/images/unavailable_message_icon.png"));
-                }
-            }
-            else
-            {
-                addFriendToList(item, query.value("username_alias").toString(),
-                                QIcon(":/images/unavailable_icon.png"));
-            }
-        }
-    }
-}
 
 void MainWindow::addFriendToList(QListWidgetItem *item, QString friendUsername, QIcon icon)
 {
@@ -365,28 +175,6 @@ void MainWindow::updateFriendsList(quint32, bool)
 
 }
 
-/*void MainWindow::changeAvailabilityStatus(quint32 id, bool available)
-{
-    qDebug() << "zmiana dostępności uzytkownika " << id << available;
-
-    QMap<quint32, Friend *>::iterator iter;
-    for (iter = friendsMap.begin(); iter != friendsMap.end(); ++iter)
-    {
-        Friend *friendPtr = iter.value();
-
-        qDebug() << "\t" << friendPtr->getUsername() << "- available: " << friendPtr->isAvailable();
-    }
-
-
-
-    for (Friend* friendPtr : friends)
-    {
-        if ((*friendPtr)() == id)
-            friendPtr->setAvailable(available);
-    }
-    reloadFriendsListWidget();
-}*/
-
 void MainWindow::changeAvailabilityStatus(quint32 id, bool available)
 {
     qDebug() << "zmiana dostępności uzytkownika " << id << available;
@@ -399,42 +187,58 @@ void MainWindow::changeAvailabilityStatus(quint32 id, bool available)
 
 }
 
-void MainWindow::changeMessageStatus(quint32 id, bool newMessage)
+void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
 {
-    qDebug() << "zmiana statusu wiadomosci uzytkownika" << id << newMessage;
+    qDebug() << "MainWindow::changeMessageStatus() - wykonało się";
+    if (activeWindowsList.contains(id))
+    {
+        qDebug() << "okno" << id << "aktywne";
+
+        // wyswietl cos na oknie chatu
+        ///////////////////////////////
+        // jesli okno jest aktywne w sensie, ze nie pracuje w tle
+        // oznacz wiadomość jako przeczytaną
+        // tj. changeMessageStateToRead(id);
+        // w innym razie niech okienko zacznie migać
+        //
+
+        for (Friend* friendPtr : friends)
+        {
+            if ((*friendPtr)() == id)
+            {
+                qDebug() << "zmieniam stan" << id << "na" << newMessage;
+                qDebug() << "zmieniam openChatWindow na true";
+                friendPtr->setNewMessage(newMessage);
+                friendPtr->setOpenChatWindow(true);
+                qDebug() << "stan wiadomosci przyjaciela to:";
+                qDebug() << friendPtr->isNewMessage();
+                qDebug() << "stan otwartego okna to:";
+                qDebug() << friendPtr->isOpenChatWindow();
+            }
+        }
+
+        for (Friend* friendPtr : friends)
+        {
+            qDebug() << friendPtr->getId() << friendPtr->isNewMessage();
+        }
+        reloadFriendsListWidget();
+
+        return;
+    }
+    qDebug() << "MainWindow::changeMessageStatus() - zmiana statusu wiadomosci uzytkownika" << id << "na wartosc" << newMessage;
+
     for (Friend* friendPtr : friends)
     {
         if ((*friendPtr)() == id)
+        {
+            qDebug() << "zmieniam stan" << id << "na" << newMessage;
             friendPtr->setNewMessage(newMessage);
+            qDebug() << "stan wiadomosci przyjaciela to:";
+            qDebug() << friendPtr->isNewMessage();
+        }
     }
     reloadFriendsListWidget();
 }
-
-/*void MainWindow::updateFriendsList()
-{
-    qDebug() << "updateFriendsList()";
-    ui->friendsListWidget->clear();
-    createFriendsList();
-}*/
-
-
-
-/*void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
-{
-    quint32 friendId = getFriendIdFromItem(item);
-    if (!activeWindowsList.contains(friendId))
-    {
-        activeWindowsList.push_back(friendId);
-        ChatWindow *chatWindow = new ChatWindow(friendId, this);
-        chatWindow->show();
-        if (checkForNewMessage(friendId))
-        {
-            changeNewMessageState(friendId, UNAVAILABLE);
-            //updateFriendsList();
-            reloadFriendsListWidget();
-        }
-    }
-}*/
 
 void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 {
@@ -442,61 +246,88 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
     QString friendAlias = extendedItem->text();
     quint32 friendId = extendedItem->getId();
 
-    qDebug() << "doubleClick" << extendedItem->getId();
+    qDebug() << "MainWindow::on_listWidget_itemDoubleClicked() - on user:" << extendedItem->getId();
 
     if (!activeWindowsList.contains(friendId))
     {
+        changeMessageStatusInTheDatabaseToRead(friendId);
+        //changeFriendMessageStatus(friendId, false);
+
         activeWindowsList.push_back(friendId);
+        qDebug() << "activeWindowList.push_back(" << friendId << ")";
+
         ChatWindow *chatWindow = new ChatWindow(friendId, this);
         chatWindow->show();
-        if (checkForNewMessage(friendId))
+
+        /*if (!isNewMessage(friendId)) // nie działa sprawdzanie czy jest wiadomosc
         {
-            changeNewMessageState(friendId, UNAVAILABLE);
-            reloadFriendsListWidget();
-        }
+            qDebug() << "if pokazuje:" << isNewMessage(friendId);
+            changeMessageStatusToRead(friendId);
+            //reloadFriendsListWidget();
+        }*/
+        /*for (Friend* friendPtr : friends)
+        {
+            qDebug() << friendPtr->getId() << friendPtr->isNewMessage();
+        }*/
+        //changeMessageStatusToRead(friendId);
     }
 }
 
-quint32 MainWindow::getFriendIdFromItem(QListWidgetItem *item)
+bool MainWindow::isNewMessage(quint32 friendId)
 {
-    QString sqlCommand = "SELECT " + LoginPage::getUser().getUsername() + "_friends.id FROM " + LoginPage::getUser().getUsername() + "_friends " +
-            "WHERE username_alias = " + '"' + item->text() + '"';
+    qDebug() << "jestem w isNewMessage()";
+    QList<Friend*>::iterator result = std::find_if(friends.begin(), friends.end(), [friendId](Friend* friendPtr)
+    {
+        qDebug() << friendPtr->getId();
+        qDebug() << friendId;
+        return friendPtr->getId() == friendId;
+    });
+    for (Friend* friendPtr : friends)
+    {
+        qDebug() << friendPtr->getId() << friendPtr->isNewMessage();
+    }
+
+    Friend* foundFriend = *result;
+    qDebug() << foundFriend->isNewMessage();
+
+    if (foundFriend->isNewMessage())
+        return true;
+
+    return false;
+}
+
+void MainWindow::changeMessageStatusInTheDatabaseToRead(quint32 friendId)
+{
+    //*QString updateNewMessageState = QString("UPDATE %1_friends SET %1_friends.is_new_message = '0' WHERE %1_friends.id = '%3'")
+      //                                      .arg(LoginPage::getUser().getId(), /*false*/ friendId);
+
+    QString updateNewMessageState = "UPDATE " + QString::number(LoginPage::getUser().getId()) + "_friends SET " +
+                QString::number(LoginPage::getUser().getId()) + "_friends.is_new_message = " + QString::number(0) + " WHERE " +
+                QString::number(LoginPage::getUser().getId()) + "_friends.id = " + "'" + QString::number(friendId) + "'";
+
     QSqlDatabase database(LoginPage::getDatabase());
     QSqlQuery query(database);
-    if (query.exec(sqlCommand))
+    if (query.exec(updateNewMessageState))
     {
-        if (query.size() > 0)
+        if (query.numRowsAffected() == 1)
         {
-            query.next();
-            return query.value("id").toUInt();
+            qDebug() << "MainWindow::changeMessageStatusToRead() - wykonało się";
+            qDebug() << "Updated is_new_message state for user" << friendId;
+        }
+        else
+        {
+            qDebug() << "MainWindow::changeMessageStatusToRead() - wykonało się";
+            qDebug() << "Update is_new_message state for user" << friendId << "failed.";
         }
     }
 
-    return 0;
-}
-
-bool MainWindow::checkForNewMessage(quint32 userId)
-{
-    QString sqlCommand = "SELECT * FROM " +
-            QString::number(LoginPage::getUser().getId()) + "_friends WHERE " +
-            LoginPage::getUser().getUsername() + "_friends.id = " + "'" +
-            QString::number(userId) + "'";
-
-    QSqlDatabase database(LoginPage::getDatabase());
-    QSqlQuery query(database);
-    if (query.exec(sqlCommand))
+    for (Friend* friendPtr : friends)
     {
-        if (query.size() > 0)
-        {
-            query.next();
-            return query.value("is_new_message").toUInt();
-        }
+        qDebug() << friendPtr->getId() << friendPtr->isNewMessage();
     }
-
-    return 0;
 }
 
-void MainWindow::changeNewMessageState(quint32 userId, quint32 state)
+/*void MainWindow::changeNewMessageState(quint32 userId, quint32 state)
 {
     QString sqlCommand = "UPDATE " + LoginPage::getUser().getUsername() + "_friends SET " +
                 LoginPage::getUser().getUsername() + "_friends.is_new_message = " + QString::number(state) + " WHERE " +
@@ -515,7 +346,32 @@ void MainWindow::changeNewMessageState(quint32 userId, quint32 state)
             qDebug() << "Update is_new_message state for user" << userId << "failed.";
         }
     }
-}
+}*/
+
+
+
+/*bool MainWindow::checkForNewMessage(quint32 userId)
+{
+    QString sqlCommand = "SELECT * FROM " +
+            QString::number(LoginPage::getUser().getId()) + "_friends WHERE " +
+            LoginPage::getUser().getUsername() + "_friends.id = " + "'" +
+            QString::number(userId) + "'";
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(sqlCommand))
+    {
+        if (query.size() > 0)
+        {
+            query.next();
+            return query.value("is_new_message").toUInt();
+        }
+    }
+
+    return 0;
+}*/
+
+
 
 
 void MainWindow::socketDisconnected()

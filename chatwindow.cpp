@@ -30,10 +30,29 @@ ChatWindow::~ChatWindow()
 {
     delete ui;
     MainWindow::activeWindowsList.removeOne(converserId);
-    changeNewMessageStateToRead();
+
+    if (MainWindow::isNewMessage(converserId))
+    {
+        MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
+    }
+
+    for (Friend* friendPtr : MainWindow::friends)
+    {
+        if ((*friendPtr)() == converserId)
+        {
+            friendPtr->setOpenChatWindow(false);
+            qDebug() << "setOpenChatWindow ustawiono na false";
+        }
+    }
+
+    //changeNewMessageStateToRead();
+    /*if (MainWindow::isNewMessage(converserId))
+    {
+        MainWindow::changeMessageStatusToRead(converserId);
+    }*/
 }
 
-void ChatWindow::changeNewMessageStateToRead()
+/*void ChatWindow::changeNewMessageStateToRead()
 {
     QString idToUsernameQuery = "SELECT username FROM users WHERE id = " + QString::number(converserId);
     QSqlDatabase database = LoginPage::getDatabase();
@@ -62,7 +81,7 @@ void ChatWindow::changeNewMessageStateToRead()
             }
         }
     }
-}
+}*/
 
 void ChatWindow::makeThread()
 {
@@ -163,6 +182,8 @@ void ChatWindow::getAllMessagesFromDatabaseAndDisplay()
         }
         query.last();
         lastReadMessageId = query.value("message_id").toUInt();
+
+        qDebug() << "ChatWindow::getAllMessagesFromDatabaseAndDisplay() - wykonało się";
         qDebug() << "lastReadMessageId =" << lastReadMessageId;
     }
 }

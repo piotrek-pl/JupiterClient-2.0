@@ -17,12 +17,14 @@ MessagesController::~MessagesController()
 {
     database = QSqlDatabase();
     QSqlDatabase::removeDatabase(QString("messagesControllerThreadUser%1").arg(converserId));
+    qDebug() << "MessagesController::~MessagesController() - wykonało się";
     qDebug() << "Removed " + QString("messagesControllerThreadUser%1").arg(converserId);
 }
 
 void MessagesController::run()
 {
-    qDebug() << QString("messagesControllerThreadUser%1").arg(converserId);
+    qDebug() << "MessagesController::run() - wykonało się";
+    qDebug() << "Nazwa połączenia z bazą -" << QString("messagesControllerThreadUser%1").arg(converserId);
     checkNewMessages();
 }
 

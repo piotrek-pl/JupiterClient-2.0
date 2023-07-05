@@ -22,22 +22,21 @@ public:
     ~MainWindow();
     static QTcpSocket* getSocket() { return socket; }
     static QList<Friend *> friends;
-    //static QMap<quint32, Friend *> friendsMap;
     QList<Friend *> getFriendsList();
-    //QMap<quint32, Friend *> getFriendsMap();
+    static void changeMessageStatusInTheDatabaseToRead(quint32 friendId);
+    static bool isNewMessage(quint32 friendId);
+
 
 public slots:
-    //void updateFriendsList();
     void updateFriendsList(quint32, bool);
     void changeAvailabilityStatus(quint32, bool);
-    void changeMessageStatus(quint32, bool);
+    void changeFriendMessageStatus(quint32, bool);
 
 private slots:
     void socketConnected();
     void socketDisconnected();
     //void socketReadReady();
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
-    quint32 getFriendIdFromItem(QListWidgetItem *item);
 
 private:
     static QTcpSocket *socket;
@@ -46,8 +45,10 @@ private:
     void connectToServer();
     void sendFirstMessage(quint32 senderId);
     void addFriendToList(QListWidgetItem *item, QString friendUsername, QIcon icon);
-    bool checkForNewMessage(quint32 userId);
-    void changeNewMessageState(quint32 userId, quint32 state);
+
+    //void changeNewMessageState(quint32 userId, quint32 state);
+    //void changeNewMessageState(quint32 friendId, bool state);
+    //void changeMessageStatusToRead(quint32 friendId);
     void createFriendsList();
 
     void fillOutFriendsListWidget();
