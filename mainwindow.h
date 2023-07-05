@@ -3,6 +3,7 @@
 
 #include "friendsstatuses.h"
 #include "friend.h"
+#include "chatwindow.h"
 
 #include <QMainWindow>
 #include <QListWidgetItem>
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
 
 public:
     static QList<quint32> activeWindowsList;
+    QMap<quint32, ChatWindow *> chatWindowsMap;
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     static QTcpSocket* getSocket() { return socket; }

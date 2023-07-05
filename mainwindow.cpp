@@ -194,6 +194,7 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
     {
         qDebug() << "okno" << id << "aktywne";
 
+
         // wyswietl cos na oknie chatu
         ///////////////////////////////
         // jesli okno jest aktywne w sensie, ze nie pracuje w tle
@@ -220,8 +221,11 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
         for (Friend* friendPtr : friends)
         {
             qDebug() << friendPtr->getId() << friendPtr->isNewMessage();
+            if (!friendPtr->isNewMessage() && friendPtr->isOpenChatWindow())
+                reloadFriendsListWidget();
+
         }
-        reloadFriendsListWidget();
+        //reloadFriendsListWidget();
 
         return;
     }
@@ -235,9 +239,12 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
             friendPtr->setNewMessage(newMessage);
             qDebug() << "stan wiadomosci przyjaciela to:";
             qDebug() << friendPtr->isNewMessage();
+
+            if (friendPtr->isNewMessage() && !friendPtr->isOpenChatWindow())
+                reloadFriendsListWidget();
         }
     }
-    reloadFriendsListWidget();
+    //reloadFriendsListWidget();
 }
 
 void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -250,14 +257,21 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
     if (!activeWindowsList.contains(friendId))
     {
-        changeMessageStatusInTheDatabaseToRead(friendId);
-        //changeFriendMessageStatus(friendId, false);
+        if (isNewMessage(friendId))
+            changeMessageStatusInTheDatabaseToRead(friendId);
+
+        //changeMessageStatusInTheDatabaseToRead(friendId);
 
         activeWindowsList.push_back(friendId);
         qDebug() << "activeWindowList.push_back(" << friendId << ")";
 
-        ChatWindow *chatWindow = new ChatWindow(friendId, this);
-        chatWindow->show();
+        //ChatWindow *chatWindow = new ChatWindow(friendId, this);
+        //chatWindow->show();
+        chatWindowsMap.insert(friendId, new ChatWindow(friendId, this));
+        ChatWindow *chatWindow = chatWindowsMap.value(friendId);
+        chatWindowsMap.value(friendId)->show();
+
+
 
         /*if (!isNewMessage(friendId)) // nie działa sprawdzanie czy jest wiadomosc
         {
