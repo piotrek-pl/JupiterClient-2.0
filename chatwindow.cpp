@@ -160,6 +160,9 @@ QString ChatWindow::getUsernameAliasFromDatabase(quint32 userId)
 
 void ChatWindow::getAllMessagesFromDatabaseAndDisplay()
 {
+    //WAŻNA WIADOMOŚĆ - WYŁĄCZONA CHWILOWO
+    //qDebug() << "Jestem w metodzie ChatWindow::getAllMessagesFromDatabaseAndDisplay()";
+
     QSqlDatabase database(LoginPage::getDatabase());
     QSqlQuery query(database);
     QString allMessagesQuery = "SELECT * FROM " + QString::number(LoginPage::getUser().getId()) + "_chat_" + QString::number(converserId);
@@ -184,9 +187,8 @@ void ChatWindow::getAllMessagesFromDatabaseAndDisplay()
         }
         query.last();
         lastReadMessageId = query.value("message_id").toUInt();
-
-        qDebug() << "ChatWindow::getAllMessagesFromDatabaseAndDisplay() - wykonało się";
-        qDebug() << "lastReadMessageId =" << lastReadMessageId;
+        // WAŻNA WIADOMOŚĆ - WYŁĄCZONA CHWILOWO
+        //qDebug() << "\tlastReadMessageId =" << lastReadMessageId;
     }
 }
 
@@ -206,13 +208,15 @@ void ChatWindow::closeEvent(QCloseEvent *event)
 // dodaj jeszcze klikniecie na kazdy z elementow
 void ChatWindow::mousePressEvent(QMouseEvent *event)
 {
+    /*if (QObject::sender() == ui->centralWidget)
+           qDebug() << "nacisnieto na chatDisplay";*/
 
-    if (QObject::sender() == ui->chatDisplay)
-           qDebug() << "nacisnieto na chatDisplay";
-
-
-    MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
     qDebug() << "nacisnieto przycisk myszy";
+    // zmienic stan wiadomosci jak ponizej, tyle ze za duzo sie dzieje
+    // i jak nie ma wiadomosci, a klikam tez probuje zmienic
+    MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
+    this->setWindowIcon(QIcon());
+
 }
 
 
