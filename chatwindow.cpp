@@ -31,7 +31,7 @@ ChatWindow::~ChatWindow()
 {
     qDebug() << "Jestem w destruktorze ~ChatWindow()";
     delete ui;
-    //MainWindow::activeWindowsList.removeOne(converserId);
+
     MainWindow::activeChatWindowsMap.remove(converserId);
 
     if (MainWindow::isNewMessage(converserId))
@@ -44,53 +44,7 @@ ChatWindow::~ChatWindow()
     qDebug() << "\tsetOpenChatWindow ustawiono na false";
     qDebug() << "\tsetChatWindowOpenedAfterReceivingTheMessage ustawiono na false";
 
-    /*for (Friend* friendPtr : MainWindow::friends)
-    {
-        if ((*friendPtr)() == converserId)
-        {
-            friendPtr->setOpenChatWindow(false);
-            qDebug() << "setOpenChatWindow ustawiono na false";
-            friendPtr->setFlag(false);
-        }
-    }*/
-
-    //changeNewMessageStateToRead();
-    /*if (MainWindow::isNewMessage(converserId))
-    {
-        MainWindow::changeMessageStatusToRead(converserId);
-    }*/
 }
-
-/*void ChatWindow::changeNewMessageStateToRead()
-{
-    QString idToUsernameQuery = "SELECT username FROM users WHERE id = " + QString::number(converserId);
-    QSqlDatabase database = LoginPage::getDatabase();
-    QSqlQuery query(database);
-
-    if (query.exec(idToUsernameQuery))
-    {
-        if (query.size() > 0)
-        {
-            query.next();
-            QString username = LoginPage::getUser().getUsername();
-            QString updateNewMessageStateSqlCommand = "UPDATE " + username + "_friends SET " +
-                    username + "_friends.is_new_message = 0 " +  + "WHERE " +
-                    username + "_friends.id = " + "'" + QString::number(converserId) + "'";
-
-            if (query.exec(updateNewMessageStateSqlCommand))
-            {
-                if (query.numRowsAffected() == 1)
-                {
-                    qDebug() << "Updated is_new_message state";
-                }
-                else
-                {
-                    qDebug() << "Update is_new_message state for user failed.";
-                }
-            }
-        }
-    }
-}*/
 
 void ChatWindow::makeThread()
 {
