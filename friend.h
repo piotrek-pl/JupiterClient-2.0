@@ -17,7 +17,7 @@ public:
     };
 
     Friend(quint32 id, QString username, QString alias, bool newMessage = false, bool available = false,
-           bool openChatWindow = false);
+           bool openChatWindow = false, bool chatWindowOpenedAfterReceivingTheMessage = false);
     QString getAlias() const { return alias; }
     bool isNewMessage() const { return newMessage; }
     bool isAvailable() const { return available; }
@@ -29,12 +29,19 @@ public:
     enum State getState() const { return state; }
     Friend& operator=(quint32 id);
 
+    bool wheterChatWindowOpenedAfterReceivingTheMessage() { return chatWindowOpenedAfterReceivingTheMessage; }
+    void setChatWindowOpenedAfterReceivingTheMessage(bool flag) { this->chatWindowOpenedAfterReceivingTheMessage = flag; }
+
+
+
 private:
     QString alias;
     bool newMessage;
     bool available;
     bool openChatWindow;
     State state;
+
+    bool chatWindowOpenedAfterReceivingTheMessage;
 };
 
 #endif // FRIEND_H

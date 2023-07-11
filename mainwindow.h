@@ -18,19 +18,21 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    static QList<quint32> activeWindowsList;
+    //static QList<quint32> activeWindowsList;
     static QMap<quint32, ChatWindow *> activeChatWindowsMap;
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     static QTcpSocket* getSocket() { return socket; }
-    static QList<Friend *> friends;
-    QList<Friend *> getFriendsList();
+    //static QList<Friend *> friends;
+    static QMap<quint32, Friend *> friendsMap;
+    QMap<quint32, Friend *> getFriendsMap();
+    //QList<Friend *> getFriendsList();
     static void changeMessageStatusInTheDatabaseToRead(quint32 friendId);
     static bool isNewMessage(quint32 friendId);
 
 
 public slots:
-    void updateFriendsList(quint32, bool);
+    //void updateFriendsList(quint32, bool);
     void changeAvailabilityStatus(quint32, bool);
     void changeFriendMessageStatus(quint32, bool);
 

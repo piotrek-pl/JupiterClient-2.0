@@ -1,11 +1,13 @@
 #include "friend.h"
 
-Friend::Friend(quint32 id, QString username, QString alias, bool newMessage, bool available, bool openChatWindow)
+Friend::Friend(quint32 id, QString username, QString alias, bool newMessage, bool available, bool openChatWindow,
+               bool chatWindowOpenedAfterReceivingTheMessage)
     : User(id, username)
     , alias(alias)
     , newMessage(newMessage)
     , available(available)
     , openChatWindow(openChatWindow)
+    , chatWindowOpenedAfterReceivingTheMessage(chatWindowOpenedAfterReceivingTheMessage)
 {
     setState();
 }

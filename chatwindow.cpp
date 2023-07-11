@@ -29,6 +29,7 @@ ChatWindow::ChatWindow(quint32 converserId, QWidget *parent) :
 
 ChatWindow::~ChatWindow()
 {
+    qDebug() << "Jestem w destruktorze ~ChatWindow()";
     delete ui;
     //MainWindow::activeWindowsList.removeOne(converserId);
     MainWindow::activeChatWindowsMap.remove(converserId);
@@ -38,14 +39,20 @@ ChatWindow::~ChatWindow()
         MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
     }
 
-    for (Friend* friendPtr : MainWindow::friends)
+    MainWindow::friendsMap.value(converserId)->setOpenChatWindow(false);
+    MainWindow::friendsMap.value(converserId)->setChatWindowOpenedAfterReceivingTheMessage(false);
+    qDebug() << "\tsetOpenChatWindow ustawiono na false";
+    qDebug() << "\tsetChatWindowOpenedAfterReceivingTheMessage ustawiono na false";
+
+    /*for (Friend* friendPtr : MainWindow::friends)
     {
         if ((*friendPtr)() == converserId)
         {
             friendPtr->setOpenChatWindow(false);
             qDebug() << "setOpenChatWindow ustawiono na false";
+            friendPtr->setFlag(false);
         }
-    }
+    }*/
 
     //changeNewMessageStateToRead();
     /*if (MainWindow::isNewMessage(converserId))
