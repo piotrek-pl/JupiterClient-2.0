@@ -251,14 +251,10 @@ bool MainWindow::isNewMessage(quint32 friendId)
 
 void MainWindow::changeMessageStatusInTheDatabaseToRead(quint32 friendId)
 {
-    //*QString updateNewMessageState = QString("UPDATE %1_friends SET %1_friends.is_new_message = '0' WHERE %1_friends.id = '%3'")
-    //                                      .arg(LoginPage::getUser().getId(), /*false*/ friendId);
-
     qDebug() << "Jestem w metodzie changeMessageStatusInTheDatabaseToRead()";
 
-    QString updateNewMessageState = "UPDATE " + QString::number(LoginPage::getUser().getId()) + "_friends SET " +
-                QString::number(LoginPage::getUser().getId()) + "_friends.is_new_message = " + QString::number(0) + " WHERE " +
-                QString::number(LoginPage::getUser().getId()) + "_friends.id = " + "'" + QString::number(friendId) + "'";
+    QString updateNewMessageState = QString("UPDATE %1_friends SET %1_friends.is_new_message = 0 WHERE %1_friends.id = '%2'")
+                                        .arg(LoginPage::getUser().getId()).arg(friendId);
 
     QSqlDatabase database(LoginPage::getDatabase());
     QSqlQuery query(database);

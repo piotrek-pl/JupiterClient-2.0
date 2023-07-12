@@ -172,11 +172,16 @@ void ChatWindow::mousePressEvent(QMouseEvent *event)
     /*if (QObject::sender() == ui->centralWidget)
            qDebug() << "nacisnieto na chatDisplay";*/
 
+
+
+
     qDebug() << "nacisnieto przycisk myszy";
     // zmienic stan wiadomosci jak ponizej, tyle ze za duzo sie dzieje
     // i jak nie ma wiadomosci, a klikam tez probuje zmienic
     MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
     this->setWindowIcon(QIcon());
+
+    //QMainWindow::mousePressEvent(event);
 
 }
 
