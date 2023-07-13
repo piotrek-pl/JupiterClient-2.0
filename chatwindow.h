@@ -38,8 +38,8 @@ private:
     void getAllMessagesFromDatabaseAndDisplay();
     void makeThread();
     void closeEvent(QCloseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void changeNewMessageStateToRead();
+    //void mousePressEvent(QMouseEvent *event);
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 };
 
 #endif // CHATWINDOW_H

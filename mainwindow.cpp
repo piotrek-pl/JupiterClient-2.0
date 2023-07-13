@@ -182,7 +182,6 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
     if (friendsMap.value(id)->isOpenChatWindow())
     {
         qDebug() << "\tOkno" << id << "aktywne";
-        qDebug() << "\tZmiana stanu wiadomości użytkownika" << id << "na stan" << newMessage;
         qDebug() << "\tfriendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage() -" << friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage();
         if (friendsMap.value(id)->isNewMessage() && !friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage())
         {
@@ -190,13 +189,19 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
             qDebug() << "\tZmiana friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage() na wartość true";
             friendsMap.value(id)->setChatWindowOpenedAfterReceivingTheMessage(true);
         }
+        qDebug() << "\tZmiana stanu wiadomości użytkownika" << id << "na stan" << newMessage;
+        friendsMap.value(id)->setNewMessage(newMessage);
+        qDebug() << "\tXXX" << friendsMap.value(id)->isNewMessage();
     }
     else
     {
         qDebug() << "\tOkno" << id << "nieaktywne";
         qDebug() << "\tZmiana stanu wiadomości użytkownika" << id << "na stan" << newMessage;
         friendsMap.value(id)->setNewMessage(newMessage);
-        reloadFriendsListWidget();
+        //if (!friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage())
+
+        if (friendsMap.value(id)->wheterChatWindowJustClosed() == false)
+            reloadFriendsListWidget();
     }
 }
 

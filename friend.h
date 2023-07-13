@@ -17,7 +17,7 @@ public:
     };
 
     Friend(quint32 id, QString username, QString alias, bool newMessage = false, bool available = false,
-           bool openChatWindow = false, bool chatWindowOpenedAfterReceivingTheMessage = false);
+           bool openChatWindow = false, bool chatWindowOpenedAfterReceivingTheMessage = false, bool chatWindowJustClosed = false);
     QString getAlias() const { return alias; }
     bool isNewMessage() const { return newMessage; }
     bool isAvailable() const { return available; }
@@ -32,6 +32,10 @@ public:
     bool wheterChatWindowOpenedAfterReceivingTheMessage() { return chatWindowOpenedAfterReceivingTheMessage; }
     void setChatWindowOpenedAfterReceivingTheMessage(bool flag) { this->chatWindowOpenedAfterReceivingTheMessage = flag; }
 
+    bool wheterChatWindowJustClosed() { return chatWindowJustClosed; };
+    void setChatWindowJustClosed(bool flag) { this->chatWindowJustClosed = flag; };
+
+
 
 
 private:
@@ -42,6 +46,7 @@ private:
     State state;
 
     bool chatWindowOpenedAfterReceivingTheMessage;
+    bool chatWindowJustClosed;
 };
 
 #endif // FRIEND_H

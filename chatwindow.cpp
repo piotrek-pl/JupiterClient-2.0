@@ -4,6 +4,8 @@
 #include "mainwindow.h"
 #include "loginpage.h"
 
+#include <windows.h>
+
 ChatWindow::ChatWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ChatWindow)
@@ -23,6 +25,7 @@ ChatWindow::ChatWindow(quint32 converserId, QWidget *parent) :
     this->converserId = converserId;
     getAllMessagesFromDatabaseAndDisplay();
     socket = MainWindow::getSocket();
+    MainWindow::friendsMap.value(converserId)->setChatWindowJustClosed(false);
 
     makeThread();
 }
@@ -33,17 +36,17 @@ ChatWindow::~ChatWindow()
     delete ui;
 
     MainWindow::activeChatWindowsMap.remove(converserId);
+    MainWindow::friendsMap.value(converserId)->setOpenChatWindow(false);
+    MainWindow::friendsMap.value(converserId)->setChatWindowJustClosed(true);
 
-    if (MainWindow::isNewMessage(converserId))
+    if (MainWindow::friendsMap.value(converserId)->isNewMessage())
     {
         MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
     }
 
-    MainWindow::friendsMap.value(converserId)->setOpenChatWindow(false);
     MainWindow::friendsMap.value(converserId)->setChatWindowOpenedAfterReceivingTheMessage(false);
     qDebug() << "\tsetOpenChatWindow ustawiono na false";
     qDebug() << "\tsetChatWindowOpenedAfterReceivingTheMessage ustawiono na false";
-
 }
 
 void ChatWindow::makeThread()
@@ -161,19 +164,18 @@ void ChatWindow::sendMessage(quint32 senderId, quint32 receiverId, const QString
 
 void ChatWindow::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event)
+
     messagesController->isChatWindowClosed = true;
+
     //this->deleteLater(); // nie zdaza zwalniac zasobow (polaczenia z baza danych)
     this->~ChatWindow();
 }
 
 // dodaj jeszcze klikniecie na kazdy z elementow
-void ChatWindow::mousePressEvent(QMouseEvent *event)
+/*void ChatWindow::mousePressEvent(QMouseEvent *event)
 {
-    /*if (QObject::sender() == ui->centralWidget)
-           qDebug() << "nacisnieto na chatDisplay";*/
-
-
-
+    Q_UNUSED(event)
 
     qDebug() << "nacisnieto przycisk myszy";
     // zmienic stan wiadomosci jak ponizej, tyle ze za duzo sie dzieje
@@ -183,6 +185,29 @@ void ChatWindow::mousePressEvent(QMouseEvent *event)
 
     //QMainWindow::mousePressEvent(event);
 
+}*/
+
+bool ChatWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+    Q_UNUSED(eventType)
+    Q_UNUSED(result)
+
+    MSG* msg = static_cast<MSG*>(message);
+
+    if ((msg->message == WM_LBUTTONDOWN ||
+         msg->message == WM_RBUTTONDOWN ||
+         msg->message == WM_NCLBUTTONDOWN ||
+         msg->message == WM_NCRBUTTONDOWN) &&
+        (msg->wParam != HTCLOSE && msg->wParam != SC_CLOSE))
+    {
+
+            qDebug() << MainWindow::friendsMap.value(converserId)->isNewMessage();
+            //MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
+            //this->setWindowIcon(QIcon());
+    }
+
+    return false;
 }
+
 
 
