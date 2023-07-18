@@ -40,7 +40,8 @@ private slots:
     void socketConnected();
     void socketDisconnected();
     //void socketReadReady();
-    void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+    void on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item);
+    void handleListWidgetContextMenu(const QPoint &pos);
 
 private:
     static QTcpSocket *socket;
@@ -63,7 +64,6 @@ private:
     //enum ID { NO_ID = 0 };
     enum MESSAGE_STATE { AVAILABLE = 1,
                          UNAVAILABLE = 0 };
-
 
 };
 

@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListWidget" name="listWidget">
+   <widget class="QListWidget" name="friendsListWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -22,6 +22,9 @@
       <width>281</width>
       <height>431</height>
      </rect>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::CustomContextMenu</enum>
     </property>
    </widget>
   </widget>

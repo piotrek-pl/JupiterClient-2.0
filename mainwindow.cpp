@@ -20,6 +20,27 @@ MainWindow::MainWindow(QWidget *parent) :
     friendsMap = getFriendsMap();
     fillOutFriendsListWidget();
     makeThread();
+
+    QObject::connect(ui->friendsListWidget, &QListWidget::customContextMenuRequested,
+                     this, &MainWindow::handleListWidgetContextMenu);
+}
+
+void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
+{
+    QPoint item = ui->friendsListWidget->mapToGlobal(pos);
+    QMenu submenu;
+    submenu.addAction("Rename");
+    submenu.addAction("Delete");
+    QAction *rightClickItem = submenu.exec(item);
+
+    if (rightClickItem->text().contains("Rename"))
+    {
+        qDebug() << "Rename";
+    }
+    else if (rightClickItem->text().contains("Delete"))
+    {
+        qDebug() << "Delete";
+    }
 }
 
 MainWindow::~MainWindow()
@@ -218,32 +239,6 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
     }
 }
 
-
-void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
-{
-    ExtendedQListWidgetItem *extendedItem = dynamic_cast<ExtendedQListWidgetItem*>(item);
-    QString friendAlias = extendedItem->text();
-    quint32 friendId = extendedItem->getId();
-
-    qDebug() << "Jestem w metodzie on_listWidget_itemDoubleClicked() - klinięto na użytkownika:" << extendedItem->getId();
-
-    if (!activeChatWindowsMap.value(friendId))
-    {
-        qDebug() << "\tOkno chatu" << friendId << "nieaktywne";
-        qDebug() << "\tSprawdzam czy jest nowa wiadomość - wywołuję isNewMessage()";
-        if (isNewMessage(friendId))
-            changeMessageStatusInTheDatabaseToRead(friendId);
-
-        activeChatWindowsMap.insert(friendId, new ChatWindow(friendId, this));
-        activeChatWindowsMap.value(friendId)->show();
-
-        qDebug() << "\tZmiana składowej openChatWindow na true";
-        friendsMap.value(friendId)->setOpenChatWindow(true);
-    }
-    else
-        qDebug() << "\tOkno chatu" << friendId << "aktywne";
-}
-
 bool MainWindow::isNewMessage(quint32 friendId)
 {
 
@@ -295,4 +290,29 @@ void MainWindow::socketDisconnected()
 }
 
 
+
+void MainWindow::on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    ExtendedQListWidgetItem *extendedItem = dynamic_cast<ExtendedQListWidgetItem*>(item);
+    QString friendAlias = extendedItem->text();
+    quint32 friendId = extendedItem->getId();
+
+    qDebug() << "Jestem w metodzie on_listWidget_itemDoubleClicked() - klinięto na użytkownika:" << extendedItem->getId();
+
+    if (!activeChatWindowsMap.value(friendId))
+    {
+        qDebug() << "\tOkno chatu" << friendId << "nieaktywne";
+        qDebug() << "\tSprawdzam czy jest nowa wiadomość - wywołuję isNewMessage()";
+        if (isNewMessage(friendId))
+            changeMessageStatusInTheDatabaseToRead(friendId);
+
+        activeChatWindowsMap.insert(friendId, new ChatWindow(friendId, this));
+        activeChatWindowsMap.value(friendId)->show();
+
+        qDebug() << "\tZmiana składowej openChatWindow na true";
+        friendsMap.value(friendId)->setOpenChatWindow(true);
+    }
+    else
+        qDebug() << "\tOkno chatu" << friendId << "aktywne";
+}
 
