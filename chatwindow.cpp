@@ -25,7 +25,6 @@ ChatWindow::ChatWindow(quint32 converserId, QWidget *parent) :
     this->converserId = converserId;
     getAllMessagesFromDatabaseAndDisplay();
     socket = MainWindow::getSocket();
-    MainWindow::friendsMap.value(converserId)->setChatWindowJustClosed(false);
 
     makeThread();
 }
@@ -37,7 +36,6 @@ ChatWindow::~ChatWindow()
 
     MainWindow::activeChatWindowsMap.remove(converserId);
     MainWindow::friendsMap.value(converserId)->setOpenChatWindow(false);
-    MainWindow::friendsMap.value(converserId)->setChatWindowJustClosed(true);
 
     if (MainWindow::friendsMap.value(converserId)->isNewMessage())
     {
@@ -200,10 +198,12 @@ bool ChatWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
          msg->message == WM_NCRBUTTONDOWN) &&
         (msg->wParam != HTCLOSE && msg->wParam != SC_CLOSE))
     {
-
-            qDebug() << MainWindow::friendsMap.value(converserId)->isNewMessage();
-            //MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
-            //this->setWindowIcon(QIcon());
+        qDebug() << MainWindow::friendsMap.value(converserId)->isNewMessage();
+        if (MainWindow::friendsMap.value(converserId)->isNewMessage())
+        {
+            MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
+            this->setWindowIcon(QIcon());
+        }
     }
 
     return false;

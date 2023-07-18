@@ -178,17 +178,33 @@ void MainWindow::changeAvailabilityStatus(quint32 id, bool available)
 void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
 {
     qDebug() << "Jestem w metodzie changeFriendMessageStatus()";
+    qDebug() << "\targument newMessage =" << newMessage;
 
     if (friendsMap.value(id)->isOpenChatWindow())
     {
+
+
         qDebug() << "\tOkno" << id << "aktywne";
-        qDebug() << "\tfriendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage() -" << friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage();
-        if (friendsMap.value(id)->isNewMessage() && !friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage())
+        qDebug() << "\tfriendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage() -"
+                 << friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage();
+
+
+        if (!friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage())
         {
             reloadFriendsListWidget();
             qDebug() << "\tZmiana friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage() na wartość true";
             friendsMap.value(id)->setChatWindowOpenedAfterReceivingTheMessage(true);
         }
+
+        if (newMessage)
+        {
+            activeChatWindowsMap.value(id)->setWindowIcon(QIcon(":/images/message_icon.png"));
+        }
+        else
+        {
+            activeChatWindowsMap.value(id)->setWindowIcon(QIcon(""));
+        }
+
         qDebug() << "\tZmiana stanu wiadomości użytkownika" << id << "na stan" << newMessage;
         friendsMap.value(id)->setNewMessage(newMessage);
         qDebug() << "\tXXX" << friendsMap.value(id)->isNewMessage();
@@ -198,10 +214,7 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
         qDebug() << "\tOkno" << id << "nieaktywne";
         qDebug() << "\tZmiana stanu wiadomości użytkownika" << id << "na stan" << newMessage;
         friendsMap.value(id)->setNewMessage(newMessage);
-        //if (!friendsMap.value(id)->wheterChatWindowOpenedAfterReceivingTheMessage())
-
-        if (friendsMap.value(id)->wheterChatWindowJustClosed() == false)
-            reloadFriendsListWidget();
+        reloadFriendsListWidget();
     }
 }
 
