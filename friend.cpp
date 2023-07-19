@@ -28,6 +28,11 @@ void Friend::setOpenChatWindow(bool openChatWindow)
     setState();
 }
 
+void Friend::setAlias(QString alias)
+{
+    this->alias = alias;
+}
+
 /*void Friend::setState()
 {
     if (available)

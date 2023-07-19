@@ -25,7 +25,9 @@ public:
     void setNewMessage(bool newMessage);
     void setAvailable(bool available);
     void setOpenChatWindow(bool openChatWindow);
+    void setAlias(QString alias);
     void setState();    
+
     enum State getState() const { return state; }
     Friend& operator=(quint32 id);
 

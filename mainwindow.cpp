@@ -1,5 +1,6 @@
 #include <QThread>
 #include <QHostAddress>
+#include <QInputDialog>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "friendsstatuses.h"
@@ -27,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
 {
+    qDebug() << "Jestem w metodzie handleListWidgetContextMenu(const QPoint &pos)";
+
     QListWidgetItem* clickedItem = ui->friendsListWidget->itemAt(pos);
     ExtendedQListWidgetItem* extendedItem = dynamic_cast<ExtendedQListWidgetItem*>(clickedItem);
     quint32 friendId = extendedItem->getId();
@@ -39,16 +42,49 @@ void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
 
     if (rightClickItem && rightClickItem->text().contains("Rename"))
     {
-        qDebug() << "Rename - id:" << friendId;
+        qDebug() << "\tRename - id:" << friendId;
+        bool ok;
+        QString newAlias = QInputDialog::getText(this, "Rename Friend", "Enter new alias:", QLineEdit::Normal, "", &ok);
+        if (ok && !newAlias.isEmpty())
+        {
+            if (changeUsernameAliasInTheDatabase(newAlias, friendId))
+            {
+                friendsMap.value(friendId)->setAlias(newAlias);
+                reloadFriendsListWidget();
+            }
+        }
+        else
+        {
+
+        }
     }
     else if (rightClickItem && rightClickItem->text().contains("Delete"))
     {
-        qDebug() << "Delete - id:" << friendId;
+        qDebug() << "\tDelete - id:" << friendId;
     }
 }
-void MainWindow::changeUsernameAliasInTheDatabase(quint32 friendId)
+bool MainWindow::changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId)
 {
+    qDebug() << "Jestem w metodzie changeUsernameAliasInTheDatabase(...)";
+    QString updateUsernameAlias = QString("UPDATE %1_friends SET %1_friends.alias = '%2' WHERE %1_friends.id = '%3'")
+                                      .arg(LoginPage::getUser().getId()).arg(newAlias).arg(friendId);
+    qDebug() << "\t" << updateUsernameAlias;
 
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(updateUsernameAlias))
+    {
+        if (query.numRowsAffected() == 1)
+        {
+            qDebug() << "\tZmieniono alias dla użytkownika" << friendId << "na wartosc" << newAlias;
+            return true;
+        }
+        else
+        {
+            qDebug() << "\tNieudana zmiana aliasu dla użytkownika" << friendId;
+        }
+    }
+    return false;
 }
 
 MainWindow::~MainWindow()

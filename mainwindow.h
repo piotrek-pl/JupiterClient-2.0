@@ -50,7 +50,7 @@ private:
     void connectToServer();
     void sendFirstMessage(quint32 senderId);
     void addFriendToList(QListWidgetItem *item, QString friendUsername, QIcon icon);
-    void changeUsernameAliasInTheDatabase(quint32 friendId);
+    bool changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId);
 
     //void changeNewMessageState(quint32 userId, quint32 state);
     //void changeNewMessageState(quint32 friendId, bool state);
