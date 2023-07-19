@@ -1,6 +1,7 @@
 #include <QThread>
 #include <QHostAddress>
 #include <QInputDialog>
+#include <QMessageBox>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "friendsstatuses.h"
@@ -61,8 +62,44 @@ void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
     else if (rightClickItem && rightClickItem->text().contains("Delete"))
     {
         qDebug() << "\tDelete - id:" << friendId;
+
+        QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirmation", "Are you sure to remove?", QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            if (removeFriendFromDatabase(friendId))
+            {
+                friendsMap.remove(friendId);
+                reloadFriendsListWidget();
+            }
+        }
     }
 }
+
+bool MainWindow::removeFriendFromDatabase(quint32 friendId)
+{
+    qDebug() << "Jestem w metodzie removeFriendFromDatabase(quint32 friendId)";
+    QString deleteFriend = QString("DELETE FROM %1_friends WHERE id = '%2'")
+                               .arg(LoginPage::getUser().getId())
+                               .arg(friendId);
+    qDebug() << "\t" << deleteFriend;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(deleteFriend))
+    {
+        if (query.numRowsAffected() == 1)
+        {
+            qDebug() << "\tUsunięto z bazy użytkownika" << friendId;
+            return true;
+        }
+        else
+        {
+            qDebug() << "\tBłąd podczas usuwania użytkownika" << friendId;
+        }
+    }
+    return false;
+}
+
 bool MainWindow::changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId)
 {
     qDebug() << "Jestem w metodzie changeUsernameAliasInTheDatabase(...)";
@@ -113,7 +150,7 @@ void MainWindow::socketConnected()
 void MainWindow::sendFirstMessage(quint32 senderId)
 {
     QDataStream stream(socket);
-    stream << senderId << NULL << NULL;
+    stream << senderId << 0 << 0;
 }
 
 QMap<quint32, Friend *> MainWindow::getFriendsMap()

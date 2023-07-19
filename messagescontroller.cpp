@@ -23,9 +23,8 @@ MessagesController::~MessagesController()
 
 void MessagesController::run()
 {
-    // WAŻNA WIADOMOŚĆ - WYŁĄCZONA CHWILOWO
-    //qDebug() << "Jestem w metodzie MessagesController::run()";
-    //qDebug() << "\tNazwa połączenia z bazą -" << QString("messagesControllerThreadUser%1").arg(converserId);
+    qDebug() << "Jestem w metodzie MessagesController::run()";
+    qDebug() << "\tNazwa połączenia z bazą -" << QString("messagesControllerThreadUser%1").arg(converserId);
     checkNewMessages();
 }
 

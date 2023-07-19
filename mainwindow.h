@@ -51,6 +51,7 @@ private:
     void sendFirstMessage(quint32 senderId);
     void addFriendToList(QListWidgetItem *item, QString friendUsername, QIcon icon);
     bool changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId);
+    bool removeFriendFromDatabase(quint32 friendId);
 
     //void changeNewMessageState(quint32 userId, quint32 state);
     //void changeNewMessageState(quint32 friendId, bool state);
