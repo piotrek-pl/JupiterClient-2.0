@@ -27,20 +27,28 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
 {
+    QListWidgetItem* clickedItem = ui->friendsListWidget->itemAt(pos);
+    ExtendedQListWidgetItem* extendedItem = dynamic_cast<ExtendedQListWidgetItem*>(clickedItem);
+    quint32 friendId = extendedItem->getId();
+
     QPoint item = ui->friendsListWidget->mapToGlobal(pos);
     QMenu submenu;
     submenu.addAction("Rename");
     submenu.addAction("Delete");
     QAction *rightClickItem = submenu.exec(item);
 
-    if (rightClickItem->text().contains("Rename"))
+    if (rightClickItem && rightClickItem->text().contains("Rename"))
     {
-        qDebug() << "Rename";
+        qDebug() << "Rename - id:" << friendId;
     }
-    else if (rightClickItem->text().contains("Delete"))
+    else if (rightClickItem && rightClickItem->text().contains("Delete"))
     {
-        qDebug() << "Delete";
+        qDebug() << "Delete - id:" << friendId;
     }
+}
+void MainWindow::changeUsernameAliasInTheDatabase(quint32 friendId)
+{
+
 }
 
 MainWindow::~MainWindow()

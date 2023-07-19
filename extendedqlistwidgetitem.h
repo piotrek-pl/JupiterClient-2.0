@@ -13,4 +13,6 @@ private:
     quint32 id;
 };
 
+Q_DECLARE_METATYPE(ExtendedQListWidgetItem*)
+
 #endif // EXTENDEDQLISTWIDGETITEM_H
