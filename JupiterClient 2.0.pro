@@ -18,6 +18,7 @@ SOURCES += \
     mainwindow.cpp \
     messagescontroller.cpp \
     queries.cpp \
+    signupwindow.cpp \
     user.cpp
 
 HEADERS += \
@@ -29,12 +30,14 @@ HEADERS += \
     mainwindow.h \
     messagescontroller.h \
     queries.h \
+    signupwindow.h \
     user.h
 
 FORMS += \
     chatwindow.ui \
     loginpage.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    signupwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
