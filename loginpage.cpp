@@ -71,3 +71,8 @@ void LoginPage::on_loginButton_clicked()
     }
 }
 
+void LoginPage::on_signUpButton_clicked()
+{
+    qDebug() << "click";
+}
+
