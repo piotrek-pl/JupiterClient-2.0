@@ -2,6 +2,7 @@
 #include "loginpage.h"
 #include "ui_loginpage.h"
 #include "mainwindow.h"
+#include "signupwindow.h"
 
 QSqlDatabase LoginPage::database = QSqlDatabase::addDatabase("QMYSQL", "mainThread");
 User LoginPage::owner;
@@ -11,6 +12,7 @@ LoginPage::LoginPage(QWidget *parent)
     , ui(new Ui::LoginPage)
 {
     ui->setupUi(this);
+    signUpWindow = nullptr;
 
     if (connectToDatabase(database))
     {
@@ -32,6 +34,7 @@ LoginPage::LoginPage(QWidget *parent)
 LoginPage::~LoginPage()
 {
     delete ui;
+    database.close();
 }
 
 bool LoginPage::connectToDatabase(QSqlDatabase database)
@@ -73,6 +76,24 @@ void LoginPage::on_loginButton_clicked()
 
 void LoginPage::on_signUpButton_clicked()
 {
-    qDebug() << "click";
+    signUpWindow = new SignUpWindow;
+    connect(signUpWindow, &SignUpWindow::closed, this, &LoginPage::onSignUpWindowClosed);
+    signUpWindow->show();
+    this->setDisabled(true);
 }
 
+void LoginPage::onSignUpWindowClosed()
+{
+    this->setDisabled(false);
+    signUpWindow = nullptr;
+}
+
+void LoginPage::closeEvent(QCloseEvent *event)
+{
+    Q_UNUSED(event)
+
+    if (signUpWindow)
+    {
+        signUpWindow->close();
+    }
+}

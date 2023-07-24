@@ -17,6 +17,14 @@ public:
 
 private:
     Ui::SignUpWindow *ui;
+    void closeEvent(QCloseEvent *event);
+    bool createUserAccount();
+    bool userExists();
+
+signals:
+    void closed();
+private slots:
+    void on_signUpButton_clicked();
 };
 
 #endif // SIGNUPWINDOW_H

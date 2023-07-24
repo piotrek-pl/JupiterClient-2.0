@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>SignUp</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="usernameLabel">
@@ -72,6 +72,9 @@
       <height>24</height>
      </rect>
     </property>
+    <property name="echoMode">
+     <enum>QLineEdit::Password</enum>
+    </property>
    </widget>
    <widget class="QLineEdit" name="confirmInput">
     <property name="geometry">
@@ -82,31 +85,21 @@
       <height>24</height>
      </rect>
     </property>
+    <property name="echoMode">
+     <enum>QLineEdit::Password</enum>
+    </property>
    </widget>
-   <widget class="QPushButton" name="acceptButton">
+   <widget class="QPushButton" name="signUpButton">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>200</y>
+      <x>160</x>
+      <y>180</y>
       <width>80</width>
       <height>24</height>
      </rect>
     </property>
     <property name="text">
-     <string>OK</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="cancelButton">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>200</y>
-      <width>80</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Cancel</string>
+     <string>SignUp</string>
     </property>
    </widget>
   </widget>

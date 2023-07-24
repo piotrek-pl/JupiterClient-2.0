@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtSql>
+#include "signupwindow.h"
 #include "user.h"
 
 QT_BEGIN_NAMESPACE
@@ -24,10 +25,13 @@ public:
 private slots:
     void on_loginButton_clicked();
     void on_signUpButton_clicked();
+    void onSignUpWindowClosed();
 
 private:
     Ui::LoginPage *ui;
+    SignUpWindow *signUpWindow;
     static QSqlDatabase database;
     static User owner;
+    void closeEvent(QCloseEvent *event);
 };
 #endif // LOGINPAGE_H

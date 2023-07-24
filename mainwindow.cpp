@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setWindowTitle(QString("%1 (%2)")
+                   .arg(LoginPage::getUser().getUsername(),
+                        QString::number(LoginPage::getUser().getId())));
+
     connectToServer();
     friendsMap = getFriendsMap();
     fillOutFriendsListWidget();
