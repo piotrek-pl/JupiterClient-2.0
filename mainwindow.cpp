@@ -70,20 +70,25 @@ void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
         QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirmation", "Are you sure to remove?", QMessageBox::Yes | QMessageBox::No);
         if (reply == QMessageBox::Yes)
         {
-            if (removeFriendFromDatabase(friendId))
+            if (removeFriendFromDatabase(LoginPage::getUser().getId(), friendId))
             {
+                if (activeChatWindowsMap.contains(friendId))
+                {
+                    activeChatWindowsMap.value(friendId)->close();
+                }
                 friendsMap.remove(friendId);
                 reloadFriendsListWidget();
+                removeFriendFromDatabase(friendId, LoginPage::getUser().getId());
             }
         }
     }
 }
 
-bool MainWindow::removeFriendFromDatabase(quint32 friendId)
+bool MainWindow::removeFriendFromDatabase(quint32 userId, quint32 friendId)
 {
     qDebug() << "Jestem w metodzie removeFriendFromDatabase(quint32 friendId)";
     QString deleteFriend = QString("DELETE FROM %1_friends WHERE id = '%2'")
-                               .arg(LoginPage::getUser().getId())
+                               .arg(userId)
                                .arg(friendId);
     qDebug() << "\t" << deleteFriend;
 
@@ -93,12 +98,14 @@ bool MainWindow::removeFriendFromDatabase(quint32 friendId)
     {
         if (query.numRowsAffected() == 1)
         {
-            qDebug() << "\tUsunięto z bazy użytkownika" << friendId;
+            qDebug() << "\tUsunięto z tabeli użytkownika" <<userId
+                     << "znajomego" << friendId;
             return true;
         }
         else
         {
-            qDebug() << "\tBłąd podczas usuwania użytkownika" << friendId;
+            qDebug() << "\tBłąd podczas usuwania znajomego" << friendId
+                     << "z tabeli użytkownika" << userId;
         }
     }
     return false;
@@ -268,12 +275,16 @@ void MainWindow::makeThread()
     QObject::connect(thread, &QThread::started, friendsStatuses, &FriendsStatuses::run);
     QObject::connect(friendsStatuses, &FriendsStatuses::availabilityStatusChanged, this, &MainWindow::changeAvailabilityStatus);
     QObject::connect(friendsStatuses, &FriendsStatuses::messageStatusChanged, this, &MainWindow::changeFriendMessageStatus);
+    QObject::connect(friendsStatuses, &FriendsStatuses::removedFriend, this, &MainWindow::onRemovedFriend);
 
     thread->start();
 }
 
 void MainWindow::changeAvailabilityStatus(quint32 id, bool available)
 {
+    /// BEDZIE TRZEBA SPRAWDZIC CZY UZYTKOWNIK ISTNIEJE
+    /// W PRZYPADKU DODAWANIA UZYTKOWNIKA
+    /// BO PROGRAM SIE CRASHUJE
     qDebug() << "Jestem w metodzie changeAvailabilityStatus()";
     qDebug() << "\tZmiana dostępności uzytkownika" << id << "na status" << available;
 
@@ -322,6 +333,19 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
         friendsMap.value(id)->setNewMessage(newMessage);
         reloadFriendsListWidget();
     }
+}
+
+void MainWindow::onRemovedFriend(quint32 friendId)
+{
+    qDebug() << "SLOT onRemovedFriend(quint32 friendId)";
+    qDebug() << "\tfriendId" << friendId;
+
+    if (activeChatWindowsMap.contains(friendId))
+    {
+        activeChatWindowsMap.value(friendId)->close();
+    }
+    friendsMap = getFriendsMap();
+    reloadFriendsListWidget();
 }
 
 bool MainWindow::isNewMessage(quint32 friendId)

@@ -35,6 +35,8 @@ public slots:
     //void updateFriendsList(quint32, bool);
     void changeAvailabilityStatus(quint32, bool);
     void changeFriendMessageStatus(quint32, bool);
+    void onRemovedFriend(quint32 friendId);
+
 
 private slots:
     void socketConnected();
@@ -51,7 +53,7 @@ private:
     void sendFirstMessage(quint32 senderId);
     void addFriendToList(QListWidgetItem *item, QString friendUsername, QIcon icon);
     bool changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId);
-    bool removeFriendFromDatabase(quint32 friendId);
+    bool removeFriendFromDatabase(quint32 userId, quint32 friendId);
 
     //void changeNewMessageState(quint32 userId, quint32 state);
     //void changeNewMessageState(quint32 friendId, bool state);
@@ -65,7 +67,8 @@ private:
 
     //enum ID { NO_ID = 0 };
     enum MESSAGE_STATE { AVAILABLE = 1,
-                         UNAVAILABLE = 0 };    
+                         UNAVAILABLE = 0 };
+
 };
 
 #endif // MAINWINDOW_H

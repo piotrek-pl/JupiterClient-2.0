@@ -7,6 +7,7 @@ FriendsStatuses::FriendsStatuses(QObject *parent)
     : QObject{parent}
 {
     database = QSqlDatabase::addDatabase("QMYSQL", "friendStatusesThread");
+    LoginPage::connectToDatabase(database);
 }
 
 void FriendsStatuses::run()
@@ -19,22 +20,25 @@ void FriendsStatuses::checkStatuses()
     QMap<quint32, Friend *> friendsMap = MainWindow::friendsMap;
     QMap<quint32, bool> availabilityFriendsMap;
     QMap<quint32, bool> messagesStatusesMap;
+    QList<quint32> friendsIdNumbersList;
+
 
     for (const auto& id : friendsMap.keys())
     {
         availabilityFriendsMap.insert(id, friendsMap.value(id)->isAvailable());
         messagesStatusesMap.insert(id, friendsMap.value(id)->isNewMessage());
+        friendsIdNumbersList.append(id);
     }
 
-    QMap<quint32, bool> actualAvailabilityFriendsMap = getAvailabilityFriendsMap();
-    QMap<quint32, bool> actualMessagesStatusesMap = getMessagesStatusesMap();
-
+    QMap<quint32, bool> currentAvailabilityFriendsMap = getAvailabilityFriendsMap();
+    QMap<quint32, bool> currentMessagesStatusesMap = getMessagesStatusesMap();
+    QList<quint32> currentFriendsIdNumbersList = getFriendsIdNumbersList();
 
     while (true)
     {
-        if (actualAvailabilityFriendsMap != availabilityFriendsMap)
+        if (currentAvailabilityFriendsMap != availabilityFriendsMap)
         {
-            QMapIterator<quint32, bool> it1(actualAvailabilityFriendsMap);
+            QMapIterator<quint32, bool> it1(currentAvailabilityFriendsMap);
             QMapIterator<quint32, bool> it2(availabilityFriendsMap);
 
             while (it1.hasNext() && it2.hasNext())
@@ -46,13 +50,13 @@ void FriendsStatuses::checkStatuses()
                     emit availabilityStatusChanged(it1.key(), it1.value());
                 }
             }
-            availabilityFriendsMap = actualAvailabilityFriendsMap;
+            availabilityFriendsMap = currentAvailabilityFriendsMap;
         }
-        actualAvailabilityFriendsMap = getAvailabilityFriendsMap();
+        currentAvailabilityFriendsMap = getAvailabilityFriendsMap();
 
-        if (actualMessagesStatusesMap != messagesStatusesMap)
+        if (currentMessagesStatusesMap != messagesStatusesMap)
         {
-            QMapIterator<quint32, bool> it1(actualMessagesStatusesMap);
+            QMapIterator<quint32, bool> it1(currentMessagesStatusesMap);
             QMapIterator<quint32, bool> it2(messagesStatusesMap);
 
             while (it1.hasNext() && it2.hasNext())
@@ -65,10 +69,25 @@ void FriendsStatuses::checkStatuses()
                     emit messageStatusChanged(it1.key(), it1.value());
                 }
             }
-            messagesStatusesMap = actualMessagesStatusesMap;
+            messagesStatusesMap = currentMessagesStatusesMap;
         }
-        actualMessagesStatusesMap = getMessagesStatusesMap();
+        currentMessagesStatusesMap = getMessagesStatusesMap();
+
+        if (currentFriendsIdNumbersList != friendsIdNumbersList)
+        {
+            for (quint32 friendId : friendsIdNumbersList)
+            {
+                if (!currentFriendsIdNumbersList.contains(friendId))
+                {
+                    qDebug() << friendId;
+                    emit removedFriend(friendId);
+                }
+            }
+        }
+        friendsIdNumbersList = currentFriendsIdNumbersList;
+        currentFriendsIdNumbersList = getFriendsIdNumbersList();
     }
+
 }
 
 
@@ -137,7 +156,7 @@ QMap<quint32, bool> FriendsStatuses::getAvailabilityFriendsMap()
                                           "FROM %1_friends "
                                           "JOIN users ON %1_friends.id = users.id")
                                     .arg(LoginPage::getUser().getId());
-    LoginPage::connectToDatabase(database);
+    //LoginPage::connectToDatabase(database);
     QSqlQuery query(database);
 
     if (query.exec(friendsAvailability))
@@ -160,7 +179,7 @@ QMap<quint32, bool> FriendsStatuses::getMessagesStatusesMap()
                                               "%1_friends.is_new_message "
                                               "FROM %1_friends")
                                         .arg(LoginPage::getUser().getId());
-    LoginPage::connectToDatabase(database);
+    //LoginPage::connectToDatabase(database);
     QSqlQuery query(database);
 
     if (query.exec(messagesStatuses))
@@ -172,4 +191,25 @@ QMap<quint32, bool> FriendsStatuses::getMessagesStatusesMap()
         }
     }
     return messagesStatusesMap;
+}
+
+QList<quint32> FriendsStatuses::getFriendsIdNumbersList()
+{
+    QList<quint32> friendsIdNumbersList;
+    QString friendsIdNumbers = QString("SELECT %1_friends.id "
+                                       "FROM %1_friends")
+                                .arg(LoginPage::getUser().getId());
+
+    QSqlQuery query(database);
+
+    if (query.exec(friendsIdNumbers))
+    {
+        while (query.next())
+        {
+            friendsIdNumbersList.append(query.value("id").toUInt());
+        }
+    }
+
+    return friendsIdNumbersList;
+
 }

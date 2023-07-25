@@ -14,7 +14,7 @@ signals:
     //void statusChanged();
     void availabilityStatusChanged(quint32, bool);
     void messageStatusChanged(quint32, bool);
-
+    void removedFriend(quint32);
 
 public slots:
     void run();
@@ -28,6 +28,8 @@ private:
     QList<bool> getMessagesStatusesListFromDatabase();
     QMap<quint32, bool> getAvailabilityFriendsMap();
     QMap<quint32, bool> getMessagesStatusesMap();
+    QMap<quint32, bool> getFriendOfFriendMap();
+    QList<quint32> getFriendsIdNumbersList();
 };
 
 #endif // FRIENDSSTATUSES_H
