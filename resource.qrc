@@ -6,5 +6,6 @@
         <file>images/available_message_icon.png</file>
         <file>images/unavailable_message_icon.png</file>
         <file>images/message_icon.png</file>
+        <file>images/search_user_icon.png</file>
     </qresource>
 </RCC>

@@ -425,3 +425,16 @@ void MainWindow::on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item)
         qDebug() << "\tOkno chatu" << friendId << "aktywne";
 }
 
+
+void MainWindow::on_actionSearchUser_triggered()
+{
+    searchUserLineEdit = new QLineEdit(this);
+    searchUserLineEdit->setPlaceholderText("Search user...");
+    searchUserLineEdit->show();
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    databaseModel = new QSqlTableModel(this, database);
+    databaseModel->setTable("users");
+    databaseModel->select();
+}
+
