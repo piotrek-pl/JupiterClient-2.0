@@ -4,6 +4,7 @@
 #include "friendsstatuses.h"
 #include "friend.h"
 #include "chatwindow.h"
+#include "invitation.h"
 
 #include <QMainWindow>
 #include <QListWidgetItem>
@@ -19,7 +20,12 @@ class MainWindow : public QMainWindow
 
 public:
     //static QList<quint32> activeWindowsList;
-    static QMap<quint32, ChatWindow *> activeChatWindowsMap;
+    static QMap<quint32, ChatWindow *> activeChatWindowsMap;    
+
+    static QList<Invitation *> sentInvitationsList;
+    static QList<Invitation *> getInvitationsList(QString invitationType);
+    static QList<Invitation *> receivedInvitationsList;
+
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     static QTcpSocket* getSocket() { return socket; }
@@ -47,13 +53,14 @@ private slots:
     void handleInviteAction();
 
     void on_actionSearchUser_triggered();
+    void onActionIInvitedClicked();
+    void onActionInvitedMeClicked();
+
 
 private:
     static QTcpSocket *socket;
     Ui::MainWindow *ui;
     FriendsStatuses *friendsStatuses;
-
-
 
     void connectToServer();
     void sendFirstMessage(quint32 senderId);

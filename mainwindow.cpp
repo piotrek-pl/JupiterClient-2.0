@@ -16,6 +16,11 @@ QMap<quint32, ChatWindow *> MainWindow::activeChatWindowsMap;
 QTcpSocket *MainWindow::socket;
 QMap<quint32, Friend* > MainWindow::friendsMap;
 
+QList<Invitation *> MainWindow::sentInvitationsList;
+QList<Invitation *> MainWindow::receivedInvitationsList;
+
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -27,11 +32,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connectToServer();
     friendsMap = getFriendsMap();
+    sentInvitationsList = getInvitationsList("sent");
+    receivedInvitationsList = getInvitationsList("received");
+
     fillOutFriendsListWidget();
     makeThread();
 
     QObject::connect(ui->friendsListWidget, &QListWidget::customContextMenuRequested,
                      this, &MainWindow::handleListWidgetContextMenu);
+    QObject::connect(ui->actionIInvited, &QAction::triggered,
+                     this, &MainWindow::onActionIInvitedClicked);
+    QObject::connect(ui->actionInvitedMe, &QAction::triggered,
+                     this, &MainWindow::onActionInvitedMeClicked);
 
 }
 
@@ -500,11 +512,13 @@ void MainWindow::on_actionSearchUser_triggered()
             dialog.exec();
         }
     }
-    else
+    else if (ok && searchedUser.isEmpty())
     {
-        QMessageBox::critical(this, "Error", "Error occurred while searching for users.");
+        QMessageBox::critical(this, "Error", "Field cannot be empty.");
     }
 }
+
+
 
 QStringList MainWindow::getFieldNames(const QSqlRecord &record)
 {
@@ -514,4 +528,88 @@ QStringList MainWindow::getFieldNames(const QSqlRecord &record)
         fieldNames << record.fieldName(i);
     }
     return fieldNames;
+}
+
+QList<Invitation *> MainWindow::getInvitationsList(QString invitationType)
+{
+    qDebug() << "Jestem w metodzie getInvitationsList(QString " +
+                QString(invitationType) + ")";
+    QString invitations = QString("SELECT %1_%2_invitations.invitation_id, "
+                                             "%1_%2_invitations.id, "
+                                             "%1_%2_invitations.username "
+                                             "FROM %1_%2_invitations")
+                                        .arg(LoginPage::getUser().getId())
+                                        .arg(invitationType);
+
+    QList<Invitation *> invitationsList;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(invitations))
+    {
+        if (query.numRowsAffected() > 0)
+        {
+            while (query.next())
+            {
+                invitationsList.append(new Invitation(query.value("invitation_id").toUInt(),
+                                                      query.value("id").toUInt(),
+                                                      query.value("username").toString()));
+            }
+        }
+        else
+        {
+            qDebug() << "\tLista jest pusta";
+        }
+    }
+
+    for (const auto& invitation : invitationsList)
+    {
+        qDebug() << "\t" << invitation->getId() << "\t"
+                         << invitation->getUserId() << "\t"
+                         << invitation->getUsername();
+    }
+
+    return invitationsList;
+}
+
+void MainWindow::onActionIInvitedClicked()
+{
+
+}
+
+void MainWindow::onActionInvitedMeClicked()
+{
+    qDebug() << "Jestem w onActionInvitedMeClicked()";
+    QStringList headers = { "id", "username" };
+    quint32 numberOfColumnToDisplay = headers.size();
+    int rowCount = receivedInvitationsList.size();
+    qDebug() << "\treceivedInvitationsList.size() =" << receivedInvitationsList.size();
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("Invited me");
+    QVBoxLayout *layout = new QVBoxLayout;
+    QTableWidget *tableWidget = new QTableWidget(&dialog);
+    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    tableWidget->setRowCount(rowCount);
+    tableWidget->setColumnCount(numberOfColumnToDisplay);
+    tableWidget->setHorizontalHeaderLabels(headers);
+    tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    for (int row = 0; row < rowCount; ++row)
+    {
+        Invitation* invitation = receivedInvitationsList.at(row);
+        QTableWidgetItem* idItem = new QTableWidgetItem(QString::number(invitation->getUserId()));
+        QTableWidgetItem* usernameItem = new QTableWidgetItem(invitation->getUsername());
+
+        tableWidget->setItem(row, 0, idItem);
+        tableWidget->setItem(row, 1, usernameItem);
+    }
+
+    tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    layout->addWidget(tableWidget);
+    dialog.setLayout(layout);
+
+    dialog.exec();
+
 }

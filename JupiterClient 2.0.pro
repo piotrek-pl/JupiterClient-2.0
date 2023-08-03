@@ -13,6 +13,7 @@ SOURCES += \
     extendedqlistwidgetitem.cpp \
     friend.cpp \
     friendsstatuses.cpp \
+    invitation.cpp \
     main.cpp \
     loginpage.cpp \
     mainwindow.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     extendedqlistwidgetitem.h \
     friend.h \
     friendsstatuses.h \
+    invitation.h \
     loginpage.h \
     mainwindow.h \
     messagescontroller.h \
