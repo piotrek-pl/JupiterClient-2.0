@@ -76,7 +76,8 @@ private:
     void fillOutFriendsListWidget();
     void reloadFriendsListWidget();
 
-    QStringList getFieldNames(const QSqlRecord &record);
+    //QStringList getFieldNames(const QSqlRecord &record);
+    bool inviteUserToFriends(quint32 userId);
 
 
     void makeThread();    

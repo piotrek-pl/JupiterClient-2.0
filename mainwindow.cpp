@@ -102,8 +102,42 @@ void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
 
 void MainWindow::handleInviteAction(quint32 userId)
 {
-    // Jesli nie ma na liscie id to wykonaj zadanie
-    qDebug() << "INVITE" << userId;
+    if (userId == LoginPage::getUser().getId())
+    {
+        QMessageBox::warning(this, "Error", "You can't invite yourself");
+        return;
+    }
+
+    for (const auto& key : friendsMap.keys())
+    {
+        if (key == userId)
+        {
+            QMessageBox::warning(this, "Friend already on list", "The user is already on your friends list.");
+            return;
+        }
+
+    }
+
+    for (const auto& item : sentInvitationsList)
+    {
+        if (item->getId() == userId)
+        {
+            QMessageBox::warning(this, "User already invited", "This user has already been invited.");
+            return;
+        }
+    }
+
+    if (inviteUserToFriends(userId))
+    {
+
+        QMessageBox::information(this, "Information", "An invitation has been sent to a user.");
+        // i dodaj do receivedInvitationsList
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error", "An error occurred while inviting the user.");
+    }
+
 }
 
 bool MainWindow::removeFriendFromDatabase(quint32 userId, quint32 friendId)
@@ -287,6 +321,8 @@ void MainWindow::reloadFriendsListWidget()
     ui->friendsListWidget->clear();
     fillOutFriendsListWidget();
 }
+
+
 
 
 void MainWindow::makeThread()
@@ -618,4 +654,15 @@ void MainWindow::onActionInvitedMeClicked()
     dialog.setLayout(layout);
 
     dialog.exec();
+}
+
+bool MainWindow::inviteUserToFriends(quint32 userId)
+{
+    // dodaj do swojej tabeli
+    // dodaj do tabeli usera
+    // dodaj do receivedInvitationsList.append(...)
+    // -- tym ostatnim powinen zajac sie slot uruchamiany innym watkiem
+    // -- tutaj niepotrzebny jest reload, gdyz to jest lista userów
+    // -- reload bedzie potrzebny przy przegladaniu listy i przy cancel zaproszenia
+    return true;
 }
