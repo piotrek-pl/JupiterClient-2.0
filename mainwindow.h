@@ -8,7 +8,6 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QTcpSocket>
-#include <QSqlTableModel>
 
 namespace Ui {
 class MainWindow;
@@ -45,6 +44,7 @@ private slots:
     //void socketReadReady();
     void on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item);
     void handleListWidgetContextMenu(const QPoint &pos);
+    void handleInviteAction();
 
     void on_actionSearchUser_triggered();
 
@@ -53,8 +53,7 @@ private:
     Ui::MainWindow *ui;
     FriendsStatuses *friendsStatuses;
 
-    QSqlTableModel *databaseModel;
-    QLineEdit *searchUserLineEdit;
+
 
     void connectToServer();
     void sendFirstMessage(quint32 senderId);
@@ -69,6 +68,9 @@ private:
 
     void fillOutFriendsListWidget();
     void reloadFriendsListWidget();
+
+    QStringList getFieldNames(const QSqlRecord &record);
+
 
     void makeThread();    
 

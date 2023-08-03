@@ -2,6 +2,9 @@
 #include <QHostAddress>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QTableWidget>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "friendsstatuses.h"
@@ -29,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->friendsListWidget, &QListWidget::customContextMenuRequested,
                      this, &MainWindow::handleListWidgetContextMenu);
+
 }
 
 void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
@@ -82,6 +86,12 @@ void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
             }
         }
     }
+}
+
+void MainWindow::handleInviteAction()
+{
+    // Jesli nie ma na liscie id to wykonaj zadanie
+    qDebug() << "INVITE";
 }
 
 bool MainWindow::removeFriendFromDatabase(quint32 userId, quint32 friendId)
@@ -266,6 +276,7 @@ void MainWindow::reloadFriendsListWidget()
     fillOutFriendsListWidget();
 }
 
+
 void MainWindow::makeThread()
 {
     friendsStatuses = new FriendsStatuses();
@@ -428,13 +439,79 @@ void MainWindow::on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item)
 
 void MainWindow::on_actionSearchUser_triggered()
 {
-    searchUserLineEdit = new QLineEdit(this);
-    searchUserLineEdit->setPlaceholderText("Search user...");
-    searchUserLineEdit->show();
+    bool ok;
+    QString searchedUser = QInputDialog::getText(this, "Search user", "Enter id or username:", QLineEdit::Normal, "", &ok);
 
-    QSqlDatabase database(LoginPage::getDatabase());
-    databaseModel = new QSqlTableModel(this, database);
-    databaseModel->setTable("users");
-    databaseModel->select();
+    if (ok && !searchedUser.isEmpty())
+    {
+        QString searchUser = QString("SELECT users.id, users.username "
+                                     "FROM users WHERE id = %1 OR username LIKE '%%2%'"
+                                     "ORDER BY id ASC")
+                                .arg(searchedUser.toUInt(&ok)).arg(searchedUser);
+        QSqlDatabase database(LoginPage::getDatabase());
+        QSqlQuery query(database);
+
+        if (query.exec(searchUser))
+        {
+            if (query.size() == 0)
+            {
+                QMessageBox::information(this, "No results", "No users found.");
+                return;
+            }
+
+            QDialog dialog(this);
+            dialog.setWindowTitle("Search results");
+            QVBoxLayout *layout = new QVBoxLayout;
+            QTableWidget *tableWidget = new QTableWidget(&dialog);
+            tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+            tableWidget->setRowCount(query.size());
+            tableWidget->setColumnCount(query.record().count());
+            tableWidget->setHorizontalHeaderLabels(getFieldNames(query.record()));
+            tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+            int row = 0;
+            while (query.next())
+            {
+                for (int col = 0; col < query.record().count(); ++col)
+                {
+                    tableWidget->setItem(row, col, new QTableWidgetItem(query.value(col).toString()));
+                }
+                ++row;
+            }
+
+            tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+            tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            layout->addWidget(tableWidget);
+            dialog.setLayout(layout);
+
+            QMenu *contextMenu = new QMenu(this);
+            QAction *actionInvite = new QAction("Invite", this);
+            contextMenu->addAction(actionInvite);
+
+            connect(actionInvite, &QAction::triggered,
+                    this, &MainWindow::handleInviteAction);
+
+            tableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(tableWidget, &QTableWidget::customContextMenuRequested, [=](const QPoint &pos) {
+                Q_UNUSED(pos);
+                contextMenu->exec(QCursor::pos());
+            });
+
+            dialog.exec();
+        }
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error", "Error occurred while searching for users.");
+    }
 }
 
+QStringList MainWindow::getFieldNames(const QSqlRecord &record)
+{
+    QStringList fieldNames;
+    for (int i = 0; i < record.count(); ++i)
+    {
+        fieldNames << record.fieldName(i);
+    }
+    return fieldNames;
+}
