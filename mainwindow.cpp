@@ -120,7 +120,7 @@ void MainWindow::handleInviteAction(quint32 userId)
 
     for (const auto& item : sentInvitationsList)
     {
-        if (item->getId() == userId)
+        if (item->getUserId() == userId)
         {
             QMessageBox::warning(this, "User already invited", "This user has already been invited.");
             return;
@@ -129,9 +129,7 @@ void MainWindow::handleInviteAction(quint32 userId)
 
     if (inviteUserToFriends(userId))
     {
-
         QMessageBox::information(this, "Information", "An invitation has been sent to a user.");
-        // i dodaj do receivedInvitationsList
     }
     else
     {
