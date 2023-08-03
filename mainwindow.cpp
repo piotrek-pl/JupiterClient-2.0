@@ -100,10 +100,10 @@ void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
     }
 }
 
-void MainWindow::handleInviteAction()
+void MainWindow::handleInviteAction(quint32 userId)
 {
     // Jesli nie ma na liscie id to wykonaj zadanie
-    qDebug() << "INVITE";
+    qDebug() << "INVITE" << userId;
 }
 
 bool MainWindow::removeFriendFromDatabase(quint32 userId, quint32 friendId)
@@ -448,8 +448,140 @@ void MainWindow::on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item)
         qDebug() << "\tOkno chatu" << friendId << "aktywne";
 }
 
-
 void MainWindow::on_actionSearchUser_triggered()
+{
+    bool ok;
+    QString searchedUser = QInputDialog::getText(this, "Search user", "Enter id or username:", QLineEdit::Normal, "", &ok);
+
+    if (ok && !searchedUser.isEmpty())
+    {
+        QString searchUser = QString("SELECT users.id, users.username "
+                                     "FROM users WHERE id = %1 OR username LIKE '%%2%'"
+                                     "ORDER BY username ASC")
+                                .arg(searchedUser.toUInt(&ok)).arg(searchedUser);
+        QSqlDatabase database(LoginPage::getDatabase());
+        QSqlQuery query(database);
+
+        if (query.exec(searchUser))
+        {
+            if (query.size() == 0)
+            {
+                QMessageBox::information(this, "No results", "No users found.");
+                return;
+            }
+
+            QDialog dialog(this);
+            dialog.setWindowTitle("Search results");
+            QVBoxLayout *layout = new QVBoxLayout;
+            QListWidget *listWidget = new QListWidget(&dialog);
+
+            while (query.next())
+            {
+                QString id = query.value("id").toString();
+                QString username = query.value("username").toString();
+
+                ExtendedQListWidgetItem *extendedItem = new ExtendedQListWidgetItem(username + "\tid: " + id, id.toUInt());
+                listWidget->addItem(extendedItem);
+            }
+
+            layout->addWidget(listWidget);
+            dialog.setLayout(layout);
+
+            QMenu *contextMenu = new QMenu(this);
+            QAction *actionInvite = new QAction("Invite", this);
+
+            contextMenu->addAction(actionInvite);
+
+            connect(actionInvite, &QAction::triggered, [=]() {
+                QListWidgetItem *item = listWidget->currentItem();
+                if (item) {
+                    ExtendedQListWidgetItem *extendedItem = dynamic_cast<ExtendedQListWidgetItem*>(item);
+                    if (extendedItem) {
+                        quint32 userId = extendedItem->getId();
+                        handleInviteAction(userId);
+                    }
+                }
+            });
+
+
+            listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+
+            connect(listWidget, &QTableWidget::customContextMenuRequested, [=](const QPoint &pos) {
+                Q_UNUSED(pos);
+                contextMenu->exec(QCursor::pos());
+            });
+
+            dialog.exec();
+        }
+    }
+    else if (ok && searchedUser.isEmpty())
+    {
+        QMessageBox::critical(this, "Error", "Field cannot be empty.");
+    }
+}
+
+/*void MainWindow::on_actionSearchUser_triggered()
+{
+    bool ok;
+    QString searchedUser = QInputDialog::getText(this, "Search user", "Enter id or username:", QLineEdit::Normal, "", &ok);
+
+    if (ok && !searchedUser.isEmpty())
+    {
+        QString searchUser = QString("SELECT users.id, users.username "
+                                     "FROM users WHERE id = %1 OR username LIKE '%%2%'"
+                                     "ORDER BY username ASC")
+                                .arg(searchedUser.toUInt(&ok)).arg(searchedUser);
+        QSqlDatabase database(LoginPage::getDatabase());
+        QSqlQuery query(database);
+
+        if (query.exec(searchUser))
+        {
+            if (query.size() == 0)
+            {
+                QMessageBox::information(this, "No results", "No users found.");
+                return;
+            }
+
+            QDialog dialog(this);
+            dialog.setWindowTitle("Search results");
+            QVBoxLayout *layout = new QVBoxLayout;
+            QListWidget *listWidget = new QListWidget(&dialog);
+
+            while (query.next())
+            {
+                QString id = query.value("id").toString();
+                QString username = query.value("username").toString();
+
+                QString listItemText = username + "\tid: " + id;
+                listWidget->addItem(listItemText);
+            }
+
+            layout->addWidget(listWidget);
+            dialog.setLayout(layout);
+
+            QMenu *contextMenu = new QMenu(this);
+            QAction *actionInvite = new QAction("Invite", this);
+            contextMenu->addAction(actionInvite);
+
+            connect(actionInvite, &QAction::triggered,
+                    this, &MainWindow::handleInviteAction);
+
+            listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(listWidget, &QTableWidget::customContextMenuRequested, [=](const QPoint &pos) {
+                Q_UNUSED(pos);
+                contextMenu->exec(QCursor::pos());
+            });
+
+            dialog.exec();
+        }
+    }
+    else if (ok && searchedUser.isEmpty())
+    {
+        QMessageBox::critical(this, "Error", "Field cannot be empty.");
+    }
+}*/
+
+/*void MainWindow::on_actionSearchUser_triggered()
 {
     bool ok;
     QString searchedUser = QInputDialog::getText(this, "Search user", "Enter id or username:", QLineEdit::Normal, "", &ok);
@@ -516,11 +648,11 @@ void MainWindow::on_actionSearchUser_triggered()
     {
         QMessageBox::critical(this, "Error", "Field cannot be empty.");
     }
-}
+}*/
 
 
 
-QStringList MainWindow::getFieldNames(const QSqlRecord &record)
+/*QStringList MainWindow::getFieldNames(const QSqlRecord &record)
 {
     QStringList fieldNames;
     for (int i = 0; i < record.count(); ++i)
@@ -528,7 +660,7 @@ QStringList MainWindow::getFieldNames(const QSqlRecord &record)
         fieldNames << record.fieldName(i);
     }
     return fieldNames;
-}
+}*/
 
 QList<Invitation *> MainWindow::getInvitationsList(QString invitationType)
 {
@@ -577,7 +709,7 @@ void MainWindow::onActionIInvitedClicked()
 
 }
 
-void MainWindow::onActionInvitedMeClicked()
+/*void MainWindow::onActionInvitedMeClicked()
 {
     qDebug() << "Jestem w onActionInvitedMeClicked()";
     QStringList headers = { "id", "username" };
@@ -612,4 +744,31 @@ void MainWindow::onActionInvitedMeClicked()
 
     dialog.exec();
 
+}*/
+void MainWindow::onActionInvitedMeClicked()
+{
+    qDebug() << "Jestem w onActionInvitedMeClicked()";
+
+    int size = receivedInvitationsList.size();
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("Invited me");
+    QVBoxLayout *layout = new QVBoxLayout;
+    QListWidget *listWidget = new QListWidget(&dialog);
+
+    for (int i = 0; i < size; ++i)
+    {
+        Invitation* invitation = receivedInvitationsList.at(i);
+        quint32 userId = invitation->getUserId();
+        ExtendedQListWidgetItem *extendedItem = new ExtendedQListWidgetItem(invitation->getUsername() +
+                                                        "\tid: " + QString::number(invitation->getUserId()), userId);
+        listWidget->addItem(extendedItem);
+
+        //listWidget->addItem(invitation->getUsername() + "\tid: " + QString::number(invitation->getUserId()));
+    }
+
+    layout->addWidget(listWidget);
+    dialog.setLayout(layout);
+
+    dialog.exec();
 }

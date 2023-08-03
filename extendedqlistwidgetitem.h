@@ -7,6 +7,7 @@ class ExtendedQListWidgetItem : public QListWidgetItem
 {
 public:
     ExtendedQListWidgetItem(const QIcon &icon, const QString &text, const quint32 id);
+    ExtendedQListWidgetItem(const QString &text, const quint32 id);
     quint32 getId() { return id; }
 
 private:

@@ -50,7 +50,7 @@ private slots:
     //void socketReadReady();
     void on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item);
     void handleListWidgetContextMenu(const QPoint &pos);
-    void handleInviteAction();
+    void handleInviteAction(quint32 userId);
 
     void on_actionSearchUser_triggered();
     void onActionIInvitedClicked();
