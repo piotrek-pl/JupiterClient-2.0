@@ -5,6 +5,7 @@
 #include "friend.h"
 #include "chatwindow.h"
 #include "invitation.h"
+#include "invitationcontroller.h"
 
 #include <QMainWindow>
 #include <QListWidgetItem>
@@ -23,8 +24,8 @@ public:
     static QMap<quint32, ChatWindow *> activeChatWindowsMap;    
 
     static QList<Invitation *> sentInvitationsList;
-    static QList<Invitation *> getInvitationsList(QString invitationType);
     static QList<Invitation *> receivedInvitationsList;
+    static QList<Invitation *> getInvitationsList(QString invitationType);
 
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -43,6 +44,8 @@ public slots:
     void changeFriendMessageStatus(quint32, bool);
     void onRemovedFriend(quint32 friendId);
 
+    void changeSentInvitationList();
+    void changeReceivedInvitationList();
 
 private slots:
     void socketConnected();
@@ -61,6 +64,7 @@ private:
     static QTcpSocket *socket;
     Ui::MainWindow *ui;
     FriendsStatuses *friendsStatuses;
+    InvitationController *invitationController;
 
     void connectToServer();
     void sendFirstMessage(quint32 senderId);
@@ -83,7 +87,7 @@ private:
 
 
 
-    void makeThread();    
+    void makeThreads();
 
     //enum ID { NO_ID = 0 };
     enum MESSAGE_STATE { AVAILABLE = 1,

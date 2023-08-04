@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     receivedInvitationsList = getInvitationsList("received");
 
     fillOutFriendsListWidget();
-    makeThread();
+    makeThreads();
 
     QObject::connect(ui->friendsListWidget, &QListWidget::customContextMenuRequested,
                      this, &MainWindow::handleListWidgetContextMenu);
@@ -323,18 +323,31 @@ void MainWindow::reloadFriendsListWidget()
 
 
 
-void MainWindow::makeThread()
+void MainWindow::makeThreads()
 {
     friendsStatuses = new FriendsStatuses();
-    QThread *thread = new QThread;
-    friendsStatuses->moveToThread(thread);
+    QThread *firstThread = new QThread;
+    friendsStatuses->moveToThread(firstThread);
 
-    QObject::connect(thread, &QThread::started, friendsStatuses, &FriendsStatuses::run);
+    QObject::connect(firstThread, &QThread::started, friendsStatuses, &FriendsStatuses::run);
     QObject::connect(friendsStatuses, &FriendsStatuses::availabilityStatusChanged, this, &MainWindow::changeAvailabilityStatus);
     QObject::connect(friendsStatuses, &FriendsStatuses::messageStatusChanged, this, &MainWindow::changeFriendMessageStatus);
     QObject::connect(friendsStatuses, &FriendsStatuses::removedFriend, this, &MainWindow::onRemovedFriend);
 
-    thread->start();
+    firstThread->start();
+
+    invitationController = new InvitationController();
+    QThread *secondThread = new QThread;
+    invitationController->moveToThread(secondThread);
+
+    QObject::connect(secondThread, &QThread::started, invitationController, &InvitationController::run);
+    QObject::connect(invitationController, &InvitationController::sentInvitationsChanged, this, &MainWindow::changeSentInvitationList);
+    QObject::connect(invitationController, &InvitationController::receivedInvitationsChanged, this, &MainWindow::changeReceivedInvitationList);
+
+    secondThread->start();
+
+
+
 }
 
 void MainWindow::changeAvailabilityStatus(quint32 id, bool available)
@@ -404,6 +417,8 @@ void MainWindow::onRemovedFriend(quint32 friendId)
     friendsMap = getFriendsMap();
     reloadFriendsListWidget();
 }
+
+
 
 bool MainWindow::isNewMessage(quint32 friendId)
 {
@@ -667,7 +682,8 @@ bool MainWindow::inviteUserToFriends(quint32 userId)
     // dodaj do receivedInvitationsList.append(...)
     // -- tym ostatnim powinen zajac sie slot uruchamiany innym watkiem
     // -- tutaj niepotrzebny jest reload, gdyz to jest lista userów
-    // -- reload bedzie potrzebny przy przegladaniu listy i przy cancel zaproszenia
+    // -- reload bedzie potrzebny przy przegladaniu listy i przy
+    // cancel bądź accept zaproszenia
 }
 
 bool MainWindow::insertInviteIntoTheTableUser(quint32 userId)
@@ -724,4 +740,18 @@ bool MainWindow::insertInviteIntoYourOwnTable(quint32 userId)
         }
     }
     return false;
+}
+
+void MainWindow::changeSentInvitationList()
+{
+    qDebug() << "SLOT Lista sent sie zmieniła";
+    sentInvitationsList = getInvitationsList("sent");
+    // Jesli lista jest otwarta to reload
+}
+
+void MainWindow::changeReceivedInvitationList()
+{
+    qDebug() << "SLOT Lista received sie zmienila";
+    receivedInvitationsList = getInvitationsList("received");
+    // Jesli lista jest otwarta to reload
 }

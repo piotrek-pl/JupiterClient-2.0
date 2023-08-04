@@ -14,6 +14,7 @@ SOURCES += \
     friend.cpp \
     friendsstatuses.cpp \
     invitation.cpp \
+    invitationcontroller.cpp \
     main.cpp \
     loginpage.cpp \
     mainwindow.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     friend.h \
     friendsstatuses.h \
     invitation.h \
+    invitationcontroller.h \
     loginpage.h \
     mainwindow.h \
     messagescontroller.h \
