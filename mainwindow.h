@@ -78,6 +78,9 @@ private:
 
     //QStringList getFieldNames(const QSqlRecord &record);
     bool inviteUserToFriends(quint32 userId);
+    bool insertInviteIntoYourOwnTable(quint32 userId);
+    bool insertInviteIntoTheTableUser(quint32 userId);
+
 
 
     void makeThread();    

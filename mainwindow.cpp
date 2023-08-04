@@ -656,11 +656,72 @@ void MainWindow::onActionInvitedMeClicked()
 
 bool MainWindow::inviteUserToFriends(quint32 userId)
 {
-    // dodaj do swojej tabeli
-    // dodaj do tabeli usera
+    if (insertInviteIntoYourOwnTable(userId) && insertInviteIntoTheTableUser(userId))
+    {
+        return true;
+    }
+    return false;
+
+    // dodaj do swojej tabeli - ZROBIONE
+    // dodaj do tabeli usera - ZROBIONE
     // dodaj do receivedInvitationsList.append(...)
     // -- tym ostatnim powinen zajac sie slot uruchamiany innym watkiem
     // -- tutaj niepotrzebny jest reload, gdyz to jest lista userów
     // -- reload bedzie potrzebny przy przegladaniu listy i przy cancel zaproszenia
-    return true;
+}
+
+bool MainWindow::insertInviteIntoTheTableUser(quint32 userId)
+{
+    qDebug() << "Jestem w insertInviteIntoTheTableUser(quint32 userId)";
+    QString insert = QString("INSERT INTO %1_received_invitations (id, username) "
+                             "VALUES ('%2', '%3')")
+                        .arg(userId)
+                        .arg(LoginPage::getUser().getId())
+                        .arg(LoginPage::getUser().getUsername());
+    qDebug() << "\t" << insert;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(insert))
+    {
+        if (query.numRowsAffected() == 1)
+        {
+            qDebug() << "\tZaproszenie dotarło do użytkownika" << userId;
+            return true;
+        }
+        else
+        {
+            qDebug() << "\tNieudana próba dostarczenia zaproszenia do użytkownika" << userId;
+            return false;
+        }
+    }
+    return false;
+}
+
+bool MainWindow::insertInviteIntoYourOwnTable(quint32 userId)
+{
+    qDebug() << "Jestem w insertInviteIntoYourOwnTable(quint32 userId)";
+    QString insert = QString("INSERT INTO %1_sent_invitations (id, username) "
+                             "SELECT '%2', users.username FROM users "
+                             "WHERE users.id = '%2'")
+                        .arg(LoginPage::getUser().getId())
+                        .arg(userId);
+    qDebug() << "\t" << insert;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(insert))
+    {
+        if (query.numRowsAffected() == 1)
+        {
+            qDebug() << "\tWysłano zaproszenie do użytkownika" << userId;
+            return true;
+        }
+        else
+        {
+            qDebug() << "\tNieudana próba zaproszenia użytkownika" << userId;
+            return false;
+        }
+    }
+    return false;
 }
