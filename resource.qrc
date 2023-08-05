@@ -7,5 +7,7 @@
         <file>images/unavailable_message_icon.png</file>
         <file>images/message_icon.png</file>
         <file>images/search_user_icon.png</file>
+        <file>images/i_invited_icon.png</file>
+        <file>images/invited_me_icon.png</file>
     </qresource>
 </RCC>

@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>0</y>
+      <y>10</y>
       <width>281</width>
-      <height>411</height>
+      <height>401</height>
      </rect>
     </property>
     <property name="contextMenuPolicy">
@@ -53,8 +53,8 @@
     <property name="title">
      <string>Invitations</string>
     </property>
-    <addaction name="actionInvitedMe"/>
     <addaction name="actionIInvited"/>
+    <addaction name="actionInvitedMe"/>
    </widget>
    <addaction name="menuContacts"/>
    <addaction name="menuInvitations"/>
@@ -71,6 +71,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSearchUser"/>
+   <addaction name="actionIInvited"/>
+   <addaction name="actionInvitedMe"/>
   </widget>
   <action name="actionSearchUser">
    <property name="checkable">
@@ -91,11 +93,19 @@
    </property>
   </action>
   <action name="actionInvitedMe">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/invited_me_icon.png</normaloff>:/images/invited_me_icon.png</iconset>
+   </property>
    <property name="text">
     <string>Invited me</string>
    </property>
   </action>
   <action name="actionIInvited">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/i_invited_icon.png</normaloff>:/images/i_invited_icon.png</iconset>
+   </property>
    <property name="text">
     <string>I invited</string>
    </property>
