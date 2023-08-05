@@ -202,7 +202,7 @@ bool ChatWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         if (MainWindow::friendsMap.value(converserId)->isNewMessage())
         {
             MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
-            this->setWindowIcon(QIcon());
+            //this->setWindowIcon(QIcon());
         }
     }
 

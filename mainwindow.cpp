@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle(QString("%1 (%2)")
+    setWindowTitle(QString("%1 [id: %2]")
                    .arg(LoginPage::getUser().getUsername(),
                         QString::number(LoginPage::getUser().getId())));
 
@@ -45,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionInvitedMe, &QAction::triggered,
                      this, &MainWindow::onActionInvitedMeClicked);
 
+    setWindowIcon(QIcon(":/images/jupiter_icon.png"));
+    setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
 }
 
 void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
@@ -52,6 +54,10 @@ void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
     qDebug() << "Jestem w metodzie handleListWidgetContextMenu(const QPoint &pos)";
 
     QListWidgetItem* clickedItem = ui->friendsListWidget->itemAt(pos);
+
+    if (clickedItem == nullptr)
+        return;
+
     ExtendedQListWidgetItem* extendedItem = dynamic_cast<ExtendedQListWidgetItem*>(clickedItem);
     quint32 friendId = extendedItem->getId();
 
@@ -389,7 +395,7 @@ void MainWindow::changeFriendMessageStatus(quint32 id, bool newMessage)
         }
         else
         {
-            activeChatWindowsMap.value(id)->setWindowIcon(QIcon(""));
+            activeChatWindowsMap.value(id)->setWindowIcon(QIcon(":/images/jupiter_icon.png"));
         }
 
         qDebug() << "\tZmiana stanu wiadomości użytkownika" << id << "na stan" << newMessage;
