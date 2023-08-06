@@ -59,12 +59,20 @@ private slots:
     void onActionIInvitedClicked();
     void onActionInvitedMeClicked();
 
+    void onIInvitedDialogClosed();
+    void onInvitedMeDialogClosed();
+
 
 private:
     static QTcpSocket *socket;
     Ui::MainWindow *ui;
     FriendsStatuses *friendsStatuses;
     InvitationController *invitationController;
+
+    QDialog *iInvitedDialog;
+    QDialog *invitedMeDialog;
+    bool iInvitedDialogOpen = false;
+    bool invitedMeDialogOpen = false;
 
     void connectToServer();
     void sendFirstMessage(quint32 senderId);

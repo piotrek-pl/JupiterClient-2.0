@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionIInvited, &QAction::triggered,
                      this, &MainWindow::onActionIInvitedClicked);
     QObject::connect(ui->actionInvitedMe, &QAction::triggered,
-                     this, &MainWindow::onActionInvitedMeClicked);
+                     this, &MainWindow::onActionInvitedMeClicked);   
 
     setWindowIcon(QIcon(":/images/jupiter_icon.png"));
     setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
@@ -624,14 +624,23 @@ QList<Invitation *> MainWindow::getInvitationsList(QString invitationType)
 ////// DRY //////////////////////
 void MainWindow::onActionIInvitedClicked()
 {
+
+
     qDebug() << "Jestem w onActionIInvitedClicked()";
 
     int size = sentInvitationsList.size();
 
-    QDialog dialog(this);
-    dialog.setWindowTitle("I invited");
+    //QDialog dialog(this);
+    iInvitedDialog = new QDialog(this);
+
+    connect(iInvitedDialog, &QDialog::finished,
+            this, &MainWindow::onIInvitedDialogClosed);
+
+    //dialog.setWindowTitle("I invited");
+    iInvitedDialog->setWindowTitle("I invited");
     QVBoxLayout *layout = new QVBoxLayout;
-    QListWidget *listWidget = new QListWidget(&dialog);
+    //QListWidget *listWidget = new QListWidget(&dialog);
+    QListWidget *listWidget = new QListWidget(iInvitedDialog);
 
     for (int i = 0; i < size; ++i)
     {
@@ -643,9 +652,16 @@ void MainWindow::onActionIInvitedClicked()
     }
 
     layout->addWidget(listWidget);
-    dialog.setLayout(layout);
+    //dialog.setLayout(layout);
+    iInvitedDialog->setLayout(layout);
 
-    dialog.exec();
+    //dialog.exec();
+    iInvitedDialogOpen = true;
+    iInvitedDialog->exec();
+
+
+
+
 }
 
 
@@ -655,10 +671,17 @@ void MainWindow::onActionInvitedMeClicked()
 
     int size = receivedInvitationsList.size();
 
-    QDialog dialog(this);
-    dialog.setWindowTitle("Invited me");
+    //QDialog dialog(this);
+    invitedMeDialog = new QDialog(this);
+
+    connect(invitedMeDialog, &QDialog::finished,
+            this, &MainWindow::onInvitedMeDialogClosed);
+
+    //dialog.setWindowTitle("Invited me");
+    invitedMeDialog->setWindowTitle("Invited me");
     QVBoxLayout *layout = new QVBoxLayout;
-    QListWidget *listWidget = new QListWidget(&dialog);
+    //QListWidget *listWidget = new QListWidget(&dialog);
+    QListWidget *listWidget = new QListWidget(invitedMeDialog);
 
     for (int i = 0; i < size; ++i)
     {
@@ -670,9 +693,14 @@ void MainWindow::onActionInvitedMeClicked()
     }
 
     layout->addWidget(listWidget);
-    dialog.setLayout(layout);
+    //dialog.setLayout(layout);
+    invitedMeDialog->setLayout(layout);
 
-    dialog.exec();
+    //dialog.exec();
+    invitedMeDialogOpen = true;
+    invitedMeDialog->exec();
+
+
 }
 
 bool MainWindow::inviteUserToFriends(quint32 userId)
@@ -753,6 +781,11 @@ void MainWindow::changeSentInvitationList()
     qDebug() << "SLOT Lista sent sie zmieniła";
     sentInvitationsList = getInvitationsList("sent");
     // Jesli lista jest otwarta to reload
+    if (iInvitedDialogOpen)
+    {
+        qDebug() << "\tRELOAD LIST";
+        // reload
+    }
 }
 
 void MainWindow::changeReceivedInvitationList()
@@ -760,4 +793,19 @@ void MainWindow::changeReceivedInvitationList()
     qDebug() << "SLOT Lista received sie zmienila";
     receivedInvitationsList = getInvitationsList("received");
     // Jesli lista jest otwarta to reload
+    if (invitedMeDialogOpen)
+    {
+        qDebug() << "\tRELOAD LIST";
+        // reload
+    }
+}
+
+void MainWindow::onIInvitedDialogClosed()
+{
+    iInvitedDialogOpen = false;
+}
+
+void MainWindow::onInvitedMeDialogClosed()
+{
+    invitedMeDialogOpen = false;
 }
