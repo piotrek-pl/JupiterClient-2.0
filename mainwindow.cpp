@@ -39,19 +39,24 @@ MainWindow::MainWindow(QWidget *parent) :
     makeThreads();
 
     QObject::connect(ui->friendsListWidget, &QListWidget::customContextMenuRequested,
-                     this, &MainWindow::handleListWidgetContextMenu);
+                     this, &MainWindow::handleFriendsListWidgetContextMenu);
     QObject::connect(ui->actionIInvited, &QAction::triggered,
                      this, &MainWindow::onActionIInvitedClicked);
     QObject::connect(ui->actionInvitedMe, &QAction::triggered,
-                     this, &MainWindow::onActionInvitedMeClicked);   
+                     this, &MainWindow::onActionInvitedMeClicked);
+
+    /*QObject::connect(iInvitedListWidget, &QListWidget::customContextMenuRequested,
+                     this, &MainWindow::handleIInvitedListWidgetContextMenu);
+    QObject::connect(invitedMeListWidget, &QListWidget::customContextMenuRequested,
+                     this, &MainWindow::handleInvitedMeListWidgetContextMenu);*/
 
     setWindowIcon(QIcon(":/images/jupiter_icon.png"));
     setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
 }
 
-void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
+void MainWindow::handleFriendsListWidgetContextMenu(const QPoint &pos)
 {
-    qDebug() << "Jestem w metodzie handleListWidgetContextMenu(const QPoint &pos)";
+    qDebug() << "Jestem w metodzie handleFriendsListWidgetContextMenu(const QPoint &pos)";
 
     QListWidgetItem* clickedItem = ui->friendsListWidget->itemAt(pos);
 
@@ -103,6 +108,64 @@ void MainWindow::handleListWidgetContextMenu(const QPoint &pos)
                 removeFriendFromDatabase(friendId, LoginPage::getUser().getId());
             }
         }
+    }
+}
+
+void MainWindow::handleIInvitedListWidgetContextMenu(const QPoint &pos)
+{
+    qDebug() << "Jestem w handleIInvitedListWidgetContextMenu(const QPoint &pos)";
+
+    QListWidgetItem* clickedItem = iInvitedListWidget->itemAt(pos);
+
+    if (clickedItem == nullptr)
+        return;
+
+    ExtendedQListWidgetItem* extendedItem = dynamic_cast<ExtendedQListWidgetItem*>(clickedItem);
+    quint32 userId = extendedItem->getId();
+
+    QPoint item = iInvitedListWidget->mapToGlobal(pos);
+    QMenu submenu;
+    submenu.addAction("Cancel");
+    QAction *rightClickItem = submenu.exec(item);
+
+    if (rightClickItem && rightClickItem->text().contains("Cancel"))
+    {
+        qDebug() << "\tCancel - id:" << userId;
+        removeInvitationFromDatabase(userId, "sent");
+        removeReceivedInvitationFromAnotherUsersTable(userId);
+    }
+
+}
+
+void MainWindow::handleInvitedMeListWidgetContextMenu(const QPoint &pos)
+{
+    qDebug() << "Jestem w handleInvitedMeListWidgetContextMenu(const QPoint &pos)";
+
+    QListWidgetItem* clickedItem = invitedMeListWidget->itemAt(pos);
+
+    if (clickedItem == nullptr)
+        return;
+
+    ExtendedQListWidgetItem* extendedItem = dynamic_cast<ExtendedQListWidgetItem*>(clickedItem);
+    quint32 userId = extendedItem->getId();
+
+    QPoint item = invitedMeListWidget->mapToGlobal(pos);
+    QMenu submenu;
+    submenu.addAction("Accept");
+    QAction *rightClickItem = submenu.exec(item);
+
+    if (rightClickItem && rightClickItem->text().contains("Accept")) // "Decline"
+    {
+        qDebug() << "\tAccept - id:" << userId;
+        addFriendToDatabase(LoginPage::getUser().getId(), userId);
+        removeInvitationFromDatabase(userId, "received");
+
+        ////////////////////////////////////////////////
+        /// ///////////////////////////////////////////
+        /// //////////////////////////////////////////
+        /// TUTAJ JESTEM ////////////////////////////
+
+        //removeReceivedInvitationFromAnotherUsersTable(userId);
     }
 }
 
@@ -339,6 +402,7 @@ void MainWindow::makeThreads()
     QObject::connect(friendsStatuses, &FriendsStatuses::availabilityStatusChanged, this, &MainWindow::changeAvailabilityStatus);
     QObject::connect(friendsStatuses, &FriendsStatuses::messageStatusChanged, this, &MainWindow::changeFriendMessageStatus);
     QObject::connect(friendsStatuses, &FriendsStatuses::removedFriend, this, &MainWindow::onRemovedFriend);
+    QObject::connect(friendsStatuses, &FriendsStatuses::addedFriend, this, &MainWindow::onAddedFriend);
 
     firstThread->start();
 
@@ -420,6 +484,15 @@ void MainWindow::onRemovedFriend(quint32 friendId)
     {
         activeChatWindowsMap.value(friendId)->close();
     }
+    friendsMap = getFriendsMap();
+    reloadFriendsListWidget();
+}
+
+void MainWindow::onAddedFriend(quint32 friendId)
+{
+    qDebug() << "SLOT onAddedFriend(quint32 friendId)";
+    qDebug() << "\tfriendId" << friendId;
+
     friendsMap = getFriendsMap();
     reloadFriendsListWidget();
 }
@@ -623,7 +696,7 @@ QList<Invitation *> MainWindow::getInvitationsList(const QString &invitationType
 ///////////////REFACTOR///////////
 ////// DRY //////////////////////
 void MainWindow::onActionIInvitedClicked()
-{
+{    
     qDebug() << "Jestem w onActionIInvitedClicked()";
 
     iInvitedDialog = new QDialog(this);
@@ -641,6 +714,11 @@ void MainWindow::onActionIInvitedClicked()
     layout->addWidget(iInvitedListWidget);
     iInvitedDialog->setLayout(layout);
     iInvitedDialogOpen = true;
+
+    iInvitedListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(iInvitedListWidget, &QListWidget::customContextMenuRequested,
+                         this, &MainWindow::handleIInvitedListWidgetContextMenu);
+
     iInvitedDialog->exec();
 }
 
@@ -664,6 +742,11 @@ void MainWindow::onActionInvitedMeClicked()
     layout->addWidget(invitedMeListWidget);
     invitedMeDialog->setLayout(layout);
     invitedMeDialogOpen = true;
+
+    invitedMeListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(invitedMeListWidget, &QListWidget::customContextMenuRequested,
+                         this, &MainWindow::handleInvitedMeListWidgetContextMenu);
+
     invitedMeDialog->exec();
 }
 
@@ -674,14 +757,6 @@ bool MainWindow::inviteUserToFriends(quint32 userId)
         return true;
     }
     return false;
-
-    // dodaj do swojej tabeli - ZROBIONE
-    // dodaj do tabeli usera - ZROBIONE
-    // dodaj do receivedInvitationsList.append(...)
-    // -- tym ostatnim powinen zajac sie slot uruchamiany innym watkiem
-    // -- tutaj niepotrzebny jest reload, gdyz to jest lista userów
-    // -- reload bedzie potrzebny przy przegladaniu listy i przy
-    // cancel bądź accept zaproszenia
 }
 
 bool MainWindow::insertInviteIntoTheTableUser(quint32 userId)
@@ -772,6 +847,8 @@ void MainWindow::onInvitedMeDialogClosed()
     invitedMeDialogOpen = false;
 }
 
+
+
 void MainWindow::fillOutInvitationListWidget(QListWidget *listWidget, QList<Invitation *> invitationsList)
 {
     int size = invitationsList.size();
@@ -790,4 +867,107 @@ void MainWindow::refreshInvitationListWidget(QListWidget *listWidget, QList<Invi
 {
     listWidget->clear();
     fillOutInvitationListWidget(listWidget, invitationsList);
+}
+
+void MainWindow::removeInvitationFromDatabase(quint32 userId, const QString &invitationType)
+{
+    qDebug() << "Jestem w metodzie removeInvitationInTheDatabase(quint32 userId)";
+    QString deleteInvitation = QString("DELETE FROM %1_%2_invitations WHERE id = '%3'")
+                                .arg(LoginPage::getUser().getId())
+                                .arg(invitationType)
+                                .arg(userId);
+    qDebug() << "\t" << deleteInvitation;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(deleteInvitation))
+    {
+        if (query.numRowsAffected() == 1)
+        {
+            if (invitationType == "sent")
+            {
+                qDebug() << "\tUsunięto z tabeli wysłane zaproszenie do użytkownika"
+                         << userId;
+            }
+            if (invitationType == "received")
+            {
+                qDebug() << "\tUsunięto z tabeli otrzymane zaproszenie o użytkownika"
+                         << userId;
+            }
+
+        }
+        else
+        {
+            if (invitationType == "sent")
+            {
+                qDebug() << "\tBłąd podczas usuwania zaproszenia do użytkownika"
+                         << userId;
+            }
+            if (invitationType == "received")
+            {
+                qDebug() << "\tBłąd podczas usuwania zaproszenia od użytkownika"
+                         << userId;
+            }
+        }
+    }
+    else
+        qDebug() << "\tNieprawidłowe zapytanie do bazy danych";
+}
+
+void MainWindow::removeReceivedInvitationFromAnotherUsersTable(quint32 userId)
+{
+    qDebug() << "Jestem w metodzie removeReceivedInvitationFromAnotherUsersTable(quint32 userId)";
+    QString deleteInvitation = QString("DELETE FROM %1_received_invitations WHERE id = '%2'")
+                                .arg(userId)
+                                .arg(LoginPage::getUser().getId());
+    qDebug() << "\t" << deleteInvitation;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(deleteInvitation))
+    {
+        if (query.numRowsAffected() == 1)
+        {
+            qDebug() << "\tUsunięto z tabeli użytkownika" << userId << "otrzymane zaproszenie";
+        }
+        else
+        {
+            qDebug() << "\tBłąd podczas usuwania otrzymanego zaproszenia z tabeli użytkownika"
+                     << userId;
+        }
+    }
+    else
+        qDebug() << "\tNieprawidłowe zapytanie do bazy danych";
+
+}
+
+bool MainWindow::addFriendToDatabase(quint32 userId, quint32 friendId)
+{
+    qDebug() << "Jestem w metodzie addFriendToDatabase(quint32 userId, quint32 friendId)";
+
+    QString addFriend = QString("INSERT INTO %1_friends (id, username, alias) "
+                                "SELECT '%2', username, username "
+                                "FROM users WHERE id = '%2'")
+                            .arg(userId).arg(friendId);
+
+    qDebug() << "\t" << addFriend;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(addFriend))
+    {
+        if (query.numRowsAffected() == 1)
+        {
+            qDebug() << "\tDodano użytkownika" << friendId << "do grona przyjaciół.";
+            return true;
+        }
+        else
+        {
+            qDebug() << "\tNieudana próba dodania użytkownika" << friendId
+                     << "do grona przyjaciół.";
+            return false;
+        }
+    }
+    qDebug() << "\tBłąd podczas zapytania do bazy";
+    return false;
 }

@@ -83,6 +83,15 @@ void FriendsStatuses::checkStatuses()
                     emit removedFriend(friendId);
                 }
             }
+
+            for (quint32 currentFriendId : currentFriendsIdNumbersList)
+            {
+                if (!friendsIdNumbersList.contains(currentFriendId))
+                {
+                    qDebug() << currentFriendId;
+                    emit addedFriend(currentFriendId);
+                }
+            }
         }
         friendsIdNumbersList = currentFriendsIdNumbersList;
         currentFriendsIdNumbersList = getFriendsIdNumbersList();

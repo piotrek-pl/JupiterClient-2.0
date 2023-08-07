@@ -43,6 +43,7 @@ public slots:
     void changeAvailabilityStatus(quint32, bool);
     void changeFriendMessageStatus(quint32, bool);
     void onRemovedFriend(quint32 friendId);
+    void onAddedFriend(quint32 friendId);
 
     void changeSentInvitationList();
     void changeReceivedInvitationList();
@@ -52,7 +53,7 @@ private slots:
     void socketDisconnected();
     //void socketReadReady();
     void on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item);
-    void handleListWidgetContextMenu(const QPoint &pos);
+    void handleFriendsListWidgetContextMenu(const QPoint &pos);
     void handleInviteAction(quint32 userId);
 
     void on_actionSearchUser_triggered();
@@ -61,6 +62,9 @@ private slots:
 
     void onIInvitedDialogClosed();
     void onInvitedMeDialogClosed();
+
+    void handleIInvitedListWidgetContextMenu(const QPoint &pos);
+    void handleInvitedMeListWidgetContextMenu(const QPoint &pos);
 
 
 private:
@@ -84,6 +88,7 @@ private:
     void addFriendToList(QListWidgetItem *item, QString friendUsername, QIcon icon);
     bool changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId);
     bool removeFriendFromDatabase(quint32 userId, quint32 friendId);
+    bool addFriendToDatabase(quint32 userId, quint32 friendId);
 
     //void changeNewMessageState(quint32 userId, quint32 state);
     //void changeNewMessageState(quint32 friendId, bool state);
@@ -101,6 +106,9 @@ private:
     void fillOutInvitationListWidget(QListWidget *listWidget, QList<Invitation *> invitationsList);
     void refreshInvitationListWidget(QListWidget *listWidget, QList<Invitation *> invitationsList);
 
+    //void removeSentInvitationFromDatabase(quint32 userId);
+    void removeInvitationFromDatabase(quint32 userId, const QString &invitationType);
+    void removeReceivedInvitationFromAnotherUsersTable(quint32 userId);
 
 
     void makeThreads();

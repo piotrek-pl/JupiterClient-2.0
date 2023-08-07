@@ -15,6 +15,7 @@ signals:
     void availabilityStatusChanged(quint32, bool);
     void messageStatusChanged(quint32, bool);
     void removedFriend(quint32);
+    void addedFriend(quint32);
 
 public slots:
     void run();
