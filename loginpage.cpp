@@ -29,6 +29,8 @@ LoginPage::LoginPage(QWidget *parent)
 
     connect(ui->userInput, SIGNAL(returnPressed()), ui->loginButton, SIGNAL(clicked()));
     connect(ui->passwordInput, SIGNAL(returnPressed()), ui->loginButton, SIGNAL(clicked()));
+
+    setWindowIcon(QIcon(":/images/jupiter_icon.png"));
 }
 
 LoginPage::~LoginPage()

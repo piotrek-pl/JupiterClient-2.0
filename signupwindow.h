@@ -20,6 +20,9 @@ private:
     void closeEvent(QCloseEvent *event);
     bool createUserAccount();
     bool userExists();
+    quint32 getUserIdBasedOnUsername(const QString &username);
+    void createTablesForTheUser(quint32 userId);
+    void createFriendsTable(quint32 userId);
 
 signals:
     void closed();

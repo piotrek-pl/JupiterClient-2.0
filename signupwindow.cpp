@@ -11,6 +11,7 @@ SignUpWindow::SignUpWindow(QWidget *parent) :
     ui(new Ui::SignUpWindow)
 {
     ui->setupUi(this);
+    setWindowIcon(QIcon(":/images/jupiter_icon.png"));
 }
 
 SignUpWindow::~SignUpWindow()
@@ -69,6 +70,8 @@ void SignUpWindow::on_signUpButton_clicked()
     {
         qDebug() << "Account has been created";
         QMessageBox::information(this, "Information", "Account has been created.");
+        quint32 newUserId = getUserIdBasedOnUsername(ui->usernameInput->text());
+        createTablesForTheUser(newUserId);
         this->close();
     }
     else
@@ -135,3 +138,68 @@ bool SignUpWindow::userExists()
 
     return query.next();
 }
+
+quint32 SignUpWindow::getUserIdBasedOnUsername(const QString &username)
+{
+    qDebug() << "Jestem w metodzie getUserIdBasedOnUsername(const QString &username)";
+    QString getUserId = QString("SELECT id FROM users WHERE username = '%1'")
+                            .arg(username);
+
+    qDebug() << "\t" << getUserId;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(getUserId))
+    {
+        if (query.numRowsAffected() == 1)
+        {
+            query.next();
+            qDebug() << "\tPobrano id użytkownika" << username;
+            return query.value(0).toUInt();
+
+        }
+        else
+        {
+            qDebug() << "\tPobieranie id użytkownika zakończone niepowodzeniem";
+            return 0;
+        }
+    }
+
+    qDebug() << "\t" << query.lastError().text();
+    return 0;
+}
+
+void SignUpWindow::createTablesForTheUser(quint32 userId)
+{
+    createFriendsTable(userId);
+    // createReceivedInvitationsTable(userId);
+    // createSentInvitationsTable(userId);
+}
+
+void SignUpWindow::createFriendsTable(quint32 userId)
+{
+    qDebug() << "Jestem w metodzie createTablesForTheUser(quint32 userId)";
+    QString createFriendsTable = QString("CREATE TABLE IF NOT EXISTS jupiter.%1_friends ("
+                                         "id INT NOT NULL AUTO_INCREMENT, "
+                                         "username VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, "
+                                         "alias VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, "
+                                         "timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+                                         "is_new_message BOOLEAN NOT NULL DEFAULT FALSE, "
+                                         "PRIMARY KEY (id)) ENGINE = InnoDB")
+                                    .arg(userId);
+
+   qDebug() << createFriendsTable;
+
+   QSqlDatabase database(LoginPage::getDatabase());
+   QSqlQuery query(database);
+   if (query.exec(createFriendsTable))
+   {
+       qDebug() << "\tTabela friends została utworzona lub już istnieje.";
+   }
+   else
+   {
+       qDebug() << "\tDodawanie tabeli friends zakończone niepowodzeniem" << query.lastError().text();;
+   }
+}
+
+

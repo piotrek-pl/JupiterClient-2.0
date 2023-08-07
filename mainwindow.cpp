@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
                      this, &MainWindow::handleInvitedMeListWidgetContextMenu);*/
 
     setWindowIcon(QIcon(":/images/jupiter_icon.png"));
-    setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
+    //setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
 }
 
 void MainWindow::handleFriendsListWidgetContextMenu(const QPoint &pos)

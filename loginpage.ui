@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>472</height>
+    <width>350</width>
+    <height>300</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>350</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>350</width>
+    <height>300</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>LoginPage</string>
@@ -270,7 +282,7 @@ color: white;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>556</width>
+     <width>350</width>
      <height>21</height>
     </rect>
    </property>
