@@ -575,7 +575,7 @@ void MainWindow::on_actionSearchUser_triggered()
     }
 }
 
-QList<Invitation *> MainWindow::getInvitationsList(QString invitationType)
+QList<Invitation *> MainWindow::getInvitationsList(const QString &invitationType)
 {
     qDebug() << "Jestem w metodzie getInvitationsList(QString " +
                 QString(invitationType) + ")";
@@ -624,44 +624,24 @@ QList<Invitation *> MainWindow::getInvitationsList(QString invitationType)
 ////// DRY //////////////////////
 void MainWindow::onActionIInvitedClicked()
 {
-
-
     qDebug() << "Jestem w onActionIInvitedClicked()";
 
-    int size = sentInvitationsList.size();
-
-    //QDialog dialog(this);
     iInvitedDialog = new QDialog(this);
 
     connect(iInvitedDialog, &QDialog::finished,
             this, &MainWindow::onIInvitedDialogClosed);
 
-    //dialog.setWindowTitle("I invited");
     iInvitedDialog->setWindowTitle("I invited");
     QVBoxLayout *layout = new QVBoxLayout;
-    //QListWidget *listWidget = new QListWidget(&dialog);
-    QListWidget *listWidget = new QListWidget(iInvitedDialog);
 
-    for (int i = 0; i < size; ++i)
-    {
-        Invitation* invitation = sentInvitationsList.at(i);
-        quint32 userId = invitation->getUserId();
-        ExtendedQListWidgetItem *extendedItem = new ExtendedQListWidgetItem(invitation->getUsername() +
-                                                        "\tid: " + QString::number(invitation->getUserId()), userId);
-        listWidget->addItem(extendedItem);
-    }
+    iInvitedListWidget = new QListWidget(iInvitedDialog);
 
-    layout->addWidget(listWidget);
-    //dialog.setLayout(layout);
+    fillOutInvitationListWidget(iInvitedListWidget, sentInvitationsList);
+
+    layout->addWidget(iInvitedListWidget);
     iInvitedDialog->setLayout(layout);
-
-    //dialog.exec();
     iInvitedDialogOpen = true;
     iInvitedDialog->exec();
-
-
-
-
 }
 
 
@@ -669,38 +649,22 @@ void MainWindow::onActionInvitedMeClicked()
 {
     qDebug() << "Jestem w onActionInvitedMeClicked()";
 
-    int size = receivedInvitationsList.size();
-
-    //QDialog dialog(this);
     invitedMeDialog = new QDialog(this);
 
     connect(invitedMeDialog, &QDialog::finished,
             this, &MainWindow::onInvitedMeDialogClosed);
 
-    //dialog.setWindowTitle("Invited me");
     invitedMeDialog->setWindowTitle("Invited me");
     QVBoxLayout *layout = new QVBoxLayout;
-    //QListWidget *listWidget = new QListWidget(&dialog);
-    QListWidget *listWidget = new QListWidget(invitedMeDialog);
 
-    for (int i = 0; i < size; ++i)
-    {
-        Invitation* invitation = receivedInvitationsList.at(i);
-        quint32 userId = invitation->getUserId();
-        ExtendedQListWidgetItem *extendedItem = new ExtendedQListWidgetItem(invitation->getUsername() +
-                                                        "\tid: " + QString::number(invitation->getUserId()), userId);
-        listWidget->addItem(extendedItem);
-    }
+    invitedMeListWidget = new QListWidget(invitedMeDialog);
 
-    layout->addWidget(listWidget);
-    //dialog.setLayout(layout);
+    fillOutInvitationListWidget(invitedMeListWidget, receivedInvitationsList);
+
+    layout->addWidget(invitedMeListWidget);
     invitedMeDialog->setLayout(layout);
-
-    //dialog.exec();
     invitedMeDialogOpen = true;
     invitedMeDialog->exec();
-
-
 }
 
 bool MainWindow::inviteUserToFriends(quint32 userId)
@@ -780,11 +744,10 @@ void MainWindow::changeSentInvitationList()
 {
     qDebug() << "SLOT Lista sent sie zmieniła";
     sentInvitationsList = getInvitationsList("sent");
-    // Jesli lista jest otwarta to reload
     if (iInvitedDialogOpen)
     {
         qDebug() << "\tRELOAD LIST";
-        // reload
+        refreshInvitationListWidget(iInvitedListWidget, sentInvitationsList);
     }
 }
 
@@ -792,11 +755,10 @@ void MainWindow::changeReceivedInvitationList()
 {
     qDebug() << "SLOT Lista received sie zmienila";
     receivedInvitationsList = getInvitationsList("received");
-    // Jesli lista jest otwarta to reload
     if (invitedMeDialogOpen)
     {
         qDebug() << "\tRELOAD LIST";
-        // reload
+        refreshInvitationListWidget(invitedMeListWidget, receivedInvitationsList);
     }
 }
 
@@ -808,4 +770,24 @@ void MainWindow::onIInvitedDialogClosed()
 void MainWindow::onInvitedMeDialogClosed()
 {
     invitedMeDialogOpen = false;
+}
+
+void MainWindow::fillOutInvitationListWidget(QListWidget *listWidget, QList<Invitation *> invitationsList)
+{
+    int size = invitationsList.size();
+
+    for (int i = 0; i < size; ++i)
+    {
+        Invitation* invitation = invitationsList.at(i);
+        quint32 userId = invitation->getUserId();
+        ExtendedQListWidgetItem *extendedItem = new ExtendedQListWidgetItem(invitation->getUsername() +
+                                                            "\tid: " + QString::number(invitation->getUserId()), userId);
+       listWidget->addItem(extendedItem);
+    }
+}
+
+void MainWindow::refreshInvitationListWidget(QListWidget *listWidget, QList<Invitation *> invitationsList)
+{
+    listWidget->clear();
+    fillOutInvitationListWidget(listWidget, invitationsList);
 }

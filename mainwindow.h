@@ -25,7 +25,7 @@ public:
 
     static QList<Invitation *> sentInvitationsList;
     static QList<Invitation *> receivedInvitationsList;
-    static QList<Invitation *> getInvitationsList(QString invitationType);
+    static QList<Invitation *> getInvitationsList(const QString &invitationType);
 
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -73,6 +73,11 @@ private:
     QDialog *invitedMeDialog;
     bool iInvitedDialogOpen = false;
     bool invitedMeDialogOpen = false;
+    QListWidget *iInvitedListWidget;
+    QListWidget *invitedMeListWidget;
+
+
+
 
     void connectToServer();
     void sendFirstMessage(quint32 senderId);
@@ -93,13 +98,16 @@ private:
     bool insertInviteIntoYourOwnTable(quint32 userId);
     bool insertInviteIntoTheTableUser(quint32 userId);
 
+    void fillOutInvitationListWidget(QListWidget *listWidget, QList<Invitation *> invitationsList);
+    void refreshInvitationListWidget(QListWidget *listWidget, QList<Invitation *> invitationsList);
+
 
 
     void makeThreads();
 
     //enum ID { NO_ID = 0 };
     enum MESSAGE_STATE { AVAILABLE = 1,
-                         UNAVAILABLE = 0 };
+                         UNAVAILABLE = 0 };   
 
 };
 
