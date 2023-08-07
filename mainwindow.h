@@ -108,7 +108,7 @@ private:
 
     //void removeSentInvitationFromDatabase(quint32 userId);
     void removeInvitationFromDatabase(quint32 userId, const QString &invitationType);
-    void removeReceivedInvitationFromAnotherUsersTable(quint32 userId);
+    void removeInvitationFromAnotherUsersTable(quint32 userId, const QString &invitationType);
 
 
     void makeThreads();

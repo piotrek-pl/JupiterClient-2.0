@@ -132,7 +132,7 @@ void MainWindow::handleIInvitedListWidgetContextMenu(const QPoint &pos)
     {
         qDebug() << "\tCancel - id:" << userId;
         removeInvitationFromDatabase(userId, "sent");
-        removeReceivedInvitationFromAnotherUsersTable(userId);
+        removeInvitationFromAnotherUsersTable(userId, "received");
     }
 
 }
@@ -159,14 +159,11 @@ void MainWindow::handleInvitedMeListWidgetContextMenu(const QPoint &pos)
         qDebug() << "\tAccept - id:" << userId;
         addFriendToDatabase(LoginPage::getUser().getId(), userId);
         removeInvitationFromDatabase(userId, "received");
-
-        ////////////////////////////////////////////////
-        /// ///////////////////////////////////////////
-        /// //////////////////////////////////////////
-        /// TUTAJ JESTEM ////////////////////////////
-
-        //removeReceivedInvitationFromAnotherUsersTable(userId);
+        addFriendToDatabase(userId, LoginPage::getUser().getId());
+        removeInvitationFromAnotherUsersTable(userId, "sent");
     }
+
+
 }
 
 void MainWindow::handleInviteAction(quint32 userId)
@@ -914,11 +911,12 @@ void MainWindow::removeInvitationFromDatabase(quint32 userId, const QString &inv
         qDebug() << "\tNieprawidłowe zapytanie do bazy danych";
 }
 
-void MainWindow::removeReceivedInvitationFromAnotherUsersTable(quint32 userId)
+void MainWindow::removeInvitationFromAnotherUsersTable(quint32 userId, const QString &invitationType)
 {
-    qDebug() << "Jestem w metodzie removeReceivedInvitationFromAnotherUsersTable(quint32 userId)";
-    QString deleteInvitation = QString("DELETE FROM %1_received_invitations WHERE id = '%2'")
+    qDebug() << "Jestem w metodzie removeInvitationFromAnotherUsersTable(quint32 userId, const QString &invitationType)";
+    QString deleteInvitation = QString("DELETE FROM %1_%2_invitations WHERE id = '%3'")
                                 .arg(userId)
+                                .arg(invitationType)
                                 .arg(LoginPage::getUser().getId());
     qDebug() << "\t" << deleteInvitation;
 
@@ -928,12 +926,28 @@ void MainWindow::removeReceivedInvitationFromAnotherUsersTable(quint32 userId)
     {
         if (query.numRowsAffected() == 1)
         {
-            qDebug() << "\tUsunięto z tabeli użytkownika" << userId << "otrzymane zaproszenie";
+            if (invitationType == "received")
+            {
+                qDebug() << "\tUsunięto z tabeli użytkownika" << userId << "otrzymane zaproszenie";
+            }
+            if (invitationType == "sent")
+            {
+                qDebug() << "\tUsunięto z tabeli użytkownika" << userId << "wysłane zaproszenie";
+            }
+
         }
         else
         {
-            qDebug() << "\tBłąd podczas usuwania otrzymanego zaproszenia z tabeli użytkownika"
-                     << userId;
+            if (invitationType == "received")
+            {
+                qDebug() << "\tBłąd podczas usuwania otrzymanego zaproszenia z tabeli użytkownika"
+                         << userId;
+            }
+            if (invitationType == "sent")
+            {
+                qDebug() << "\tBłąd podczas usuwania wysłanego zaproszenia z tabeli użytkownika"
+                         << userId;
+            }
         }
     }
     else
