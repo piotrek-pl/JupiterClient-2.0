@@ -152,9 +152,10 @@ void MainWindow::handleInvitedMeListWidgetContextMenu(const QPoint &pos)
     QPoint item = invitedMeListWidget->mapToGlobal(pos);
     QMenu submenu;
     submenu.addAction("Accept");
+    submenu.addAction("Decline");
     QAction *rightClickItem = submenu.exec(item);
 
-    if (rightClickItem && rightClickItem->text().contains("Accept")) // "Decline"
+    if (rightClickItem && rightClickItem->text().contains("Accept"))
     {
         qDebug() << "\tAccept - id:" << userId;
         addFriendToDatabase(LoginPage::getUser().getId(), userId);
@@ -162,8 +163,12 @@ void MainWindow::handleInvitedMeListWidgetContextMenu(const QPoint &pos)
         addFriendToDatabase(userId, LoginPage::getUser().getId());
         removeInvitationFromAnotherUsersTable(userId, "sent");
     }
-
-
+    else if (rightClickItem && rightClickItem->text().contains("Decline"))
+    {
+        qDebug() << "\tDecline - id:" << userId;
+        removeInvitationFromDatabase(userId, "received");
+        removeInvitationFromAnotherUsersTable(userId, "sent");
+    }
 }
 
 void MainWindow::handleInviteAction(quint32 userId)
