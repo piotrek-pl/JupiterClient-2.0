@@ -125,7 +125,7 @@ private:
 
     //enum ID { NO_ID = 0 };
     enum MESSAGE_STATE { AVAILABLE = 1,
-                         UNAVAILABLE = 0 };   
+                         UNAVAILABLE = 0 };
 
 };
 

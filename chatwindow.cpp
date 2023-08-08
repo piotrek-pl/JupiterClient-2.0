@@ -21,10 +21,13 @@ ChatWindow::ChatWindow(quint32 converserId, QWidget *parent) :
     ui->setupUi(this);
     ui->sendButton->setDisabled(true);
     connect(ui->messageInput, &QTextEdit::textChanged, this, &ChatWindow::onTextChanged);
-    this->setWindowTitle(getUsernameAliasFromDatabase(converserId));
+    //this->setWindowTitle(getUsernameAliasFromDatabase(converserId));
+    this->setWindowTitle(MainWindow::friendsMap.value(converserId)->getAlias());
     this->converserId = converserId;
     getAllMessagesFromDatabaseAndDisplay();
     socket = MainWindow::getSocket();
+
+    ui->messageInput->installEventFilter(this);
 
     makeThread();
 }
@@ -101,7 +104,7 @@ void ChatWindow::on_sendButton_clicked()
     ui->messageInput->clear();
 }
 
-QString ChatWindow::getUsernameAliasFromDatabase(quint32 userId)
+/*QString ChatWindow::getUsernameAliasFromDatabase(quint32 userId)
 {
     QSqlDatabase database(LoginPage::getDatabase());
     QSqlQuery query(database);
@@ -118,7 +121,7 @@ QString ChatWindow::getUsernameAliasFromDatabase(quint32 userId)
     }
 
     return 0;
-}
+}*/
 
 void ChatWindow::getAllMessagesFromDatabaseAndDisplay()
 {
@@ -209,5 +212,18 @@ bool ChatWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
     return false;
 }
 
-
+bool ChatWindow::eventFilter(QObject *obj, QEvent *event) {
+    if (obj == ui->messageInput && event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Return && (keyEvent->modifiers() & Qt::AltModifier)) {
+            ui->messageInput->insertPlainText("\n");
+            return true; // Zdarzenie zostało obsłużone
+        }
+        else if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
+            ui->sendButton->click(); // Aktywuj przycisk sendButton
+            return true; // Zdarzenie zostało obsłużone
+        }
+    }
+    return QMainWindow::eventFilter(obj, event);
+}
 

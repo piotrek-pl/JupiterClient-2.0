@@ -34,12 +34,14 @@ private:
     MessagesController *messagesController;
     quint32 converserId;
     quint32 lastReadMessageId;
-    QString getUsernameAliasFromDatabase(quint32 userId);
+    //QString getUsernameAliasFromDatabase(quint32 userId);
     void getAllMessagesFromDatabaseAndDisplay();
     void makeThread();
     void closeEvent(QCloseEvent *event);
     //void mousePressEvent(QMouseEvent *event);
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
+
+    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // CHATWINDOW_H
