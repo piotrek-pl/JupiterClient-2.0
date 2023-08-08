@@ -172,8 +172,8 @@ quint32 SignUpWindow::getUserIdBasedOnUsername(const QString &username)
 void SignUpWindow::createTablesForTheUser(quint32 userId)
 {
     createFriendsTable(userId);
-    // createReceivedInvitationsTable(userId);
-    // createSentInvitationsTable(userId);
+    createReceivedInvitationsTable(userId);
+    createSentInvitationsTable(userId);
 }
 
 void SignUpWindow::createFriendsTable(quint32 userId)
@@ -185,10 +185,10 @@ void SignUpWindow::createFriendsTable(quint32 userId)
                                          "alias VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, "
                                          "timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
                                          "is_new_message BOOLEAN NOT NULL DEFAULT FALSE, "
-                                         "PRIMARY KEY (id)) ENGINE = InnoDB")
+                                         "PRIMARY KEY (id))")
                                     .arg(userId);
 
-   qDebug() << createFriendsTable;
+   qDebug() << "\t" <<createFriendsTable;
 
    QSqlDatabase database(LoginPage::getDatabase());
    QSqlQuery query(database);
@@ -198,8 +198,55 @@ void SignUpWindow::createFriendsTable(quint32 userId)
    }
    else
    {
-       qDebug() << "\tDodawanie tabeli friends zakończone niepowodzeniem" << query.lastError().text();;
+       qDebug() << "\tDodawanie tabeli friends zakończone niepowodzeniem" << query.lastError().text();
    }
+}
+
+void SignUpWindow::createReceivedInvitationsTable(quint32 userId)
+{
+    qDebug() << "Jestem w metodzie createReceivedInvitationsTable(quint32 userId)";
+    QString createReceivedInvitationsTable = QString("CREATE TABLE IF NOT EXISTS jupiter.%1_received_invitations ("
+                                                     "invitation_id INT NOT NULL AUTO_INCREMENT, "
+                                                     "id INT NOT NULL, "
+                                                     "username VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, "
+                                                     "PRIMARY KEY  (invitation_id))")
+                                                .arg(userId);
+    qDebug() << "\t" << createReceivedInvitationsTable;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(createReceivedInvitationsTable))
+    {
+        qDebug() << "\tTabela received_invitations została utworzona lub już istnieje.";
+    }
+    else
+    {
+        qDebug() << "\tDodawanie tabeli received_invitations zakończone niepowodzeniem" << query.lastError().text();
+    }
+}
+
+
+void SignUpWindow::createSentInvitationsTable(quint32 userId)
+{
+    qDebug() << "Jestem w metodzie createSentInvitationsTable(quint32 userId)";
+    QString createSentInvitationsTable = QString("CREATE TABLE IF NOT EXISTS jupiter.%1_sent_invitations ("
+                                                     "invitation_id INT NOT NULL AUTO_INCREMENT, "
+                                                     "id INT NOT NULL, "
+                                                     "username VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, "
+                                                     "PRIMARY KEY  (invitation_id))")
+                                                .arg(userId);
+    qDebug() << "\t" << createSentInvitationsTable;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(createSentInvitationsTable))
+    {
+        qDebug() << "\tTabela sent_invitations została utworzona lub już istnieje.";
+    }
+    else
+    {
+        qDebug() << "\tDodawanie tabeli sent_invitations zakończone niepowodzeniem" << query.lastError().text();
+    }
 }
 
 

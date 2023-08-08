@@ -23,6 +23,8 @@ private:
     quint32 getUserIdBasedOnUsername(const QString &username);
     void createTablesForTheUser(quint32 userId);
     void createFriendsTable(quint32 userId);
+    void createReceivedInvitationsTable(quint32 userId);
+    void createSentInvitationsTable(quint32 userId);
 
 signals:
     void closed();

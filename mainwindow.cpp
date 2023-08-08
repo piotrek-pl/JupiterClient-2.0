@@ -990,3 +990,80 @@ bool MainWindow::addFriendToDatabase(quint32 userId, quint32 friendId)
     qDebug() << "\tBłąd podczas zapytania do bazy";
     return false;
 }
+
+void MainWindow::on_actionDelete_triggered()
+{
+    int result = QMessageBox::question(this, "Confirm Deletion",
+                                       "Are you sure you want to delete account?",
+                                       QMessageBox::Yes | QMessageBox::No);
+
+    if (result == QMessageBox::Yes)
+    {
+        deleteAccount();
+        QCoreApplication::exit(0);
+    }
+}
+
+void MainWindow::deleteAccount()
+{
+    deleteSentInvitationsTable();
+    deleteReceivedInvitationsTable();
+    deleteUserFromUsersTable();
+}
+
+void MainWindow::deleteSentInvitationsTable()
+{
+    qDebug() << "Jestem w metodzie deleteSentInvitationsTable()";
+    QString dropTable = QString("DROP TABLE %1_sent_invitations")
+                            .arg(LoginPage::getUser().getId());
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+
+    if (query.exec(dropTable))
+    {
+        qDebug() << "\tTabela sent_invitations została usunięta.";
+    }
+    else
+    {
+        qDebug() << "\tBłąd podczas usuwania tabeli sent_invitations:" << query.lastError().text();
+    }
+}
+
+void MainWindow::deleteReceivedInvitationsTable()
+{
+    qDebug() << "Jestem w metodzie deleteReceivedInvitationsTable()";
+    QString dropTable = QString("DROP TABLE %1_received_invitations")
+                            .arg(LoginPage::getUser().getId());
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+
+    if (query.exec(dropTable))
+    {
+        qDebug() << "\tTabela received_invitations została usunięta.";
+    }
+    else
+    {
+        qDebug() << "\tBłąd podczas usuwania tabeli received_invitations:" << query.lastError().text();
+    }
+}
+
+void MainWindow::deleteUserFromUsersTable()
+{
+    qDebug() << "Jestem w metodzie deleteUserFromUsersTable()";
+    QString dropTable = QString("DELETE FROM users WHERE users.id = '%1'")
+                            .arg(LoginPage::getUser().getId());
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+
+    if (query.exec(dropTable))
+    {
+        qDebug() << "\tUżytkownik został usunięty z tabeli users.";
+    }
+    else
+    {
+        qDebug() << "\tBłąd podczas usuwania użytkownika:" << query.lastError().text();
+    }
+}

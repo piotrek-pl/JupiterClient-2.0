@@ -92,8 +92,15 @@ QMainWindow {
     <addaction name="actionIInvited"/>
     <addaction name="actionInvitedMe"/>
    </widget>
+   <widget class="QMenu" name="menuAccount">
+    <property name="title">
+     <string>Account</string>
+    </property>
+    <addaction name="actionDelete"/>
+   </widget>
    <addaction name="menuContacts"/>
    <addaction name="menuInvitations"/>
+   <addaction name="menuAccount"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -109,6 +116,7 @@ QMainWindow {
    <addaction name="actionSearchUser"/>
    <addaction name="actionIInvited"/>
    <addaction name="actionInvitedMe"/>
+   <addaction name="actionDelete"/>
   </widget>
   <action name="actionSearchUser">
    <property name="checkable">
@@ -144,6 +152,15 @@ QMainWindow {
    </property>
    <property name="text">
     <string>I invited</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/delete_account_icon.png</normaloff>:/images/delete_account_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
    </property>
   </action>
  </widget>

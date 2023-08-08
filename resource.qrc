@@ -10,5 +10,6 @@
         <file>images/i_invited_icon.png</file>
         <file>images/invited_me_icon.png</file>
         <file>images/jupiter_icon.png</file>
+        <file>images/delete_account_icon.png</file>
     </qresource>
 </RCC>

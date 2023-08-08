@@ -67,6 +67,8 @@ private slots:
     void handleInvitedMeListWidgetContextMenu(const QPoint &pos);
 
 
+    void on_actionDelete_triggered();
+
 private:
     static QTcpSocket *socket;
     Ui::MainWindow *ui;
@@ -110,6 +112,11 @@ private:
     void removeInvitationFromDatabase(quint32 userId, const QString &invitationType);
     void removeInvitationFromAnotherUsersTable(quint32 userId, const QString &invitationType);
 
+    void deleteAccount();
+
+    void deleteSentInvitationsTable();
+    void deleteReceivedInvitationsTable();
+    void deleteUserFromUsersTable();
 
     void makeThreads();
 
