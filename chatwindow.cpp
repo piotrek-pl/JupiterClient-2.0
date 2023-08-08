@@ -1,5 +1,6 @@
 #include <QMouseEvent>
 #include "chatwindow.h"
+#include "qscrollbar.h"
 #include "ui_chatwindow.h"
 #include "mainwindow.h"
 #include "loginpage.h"
@@ -18,8 +19,11 @@ ChatWindow::ChatWindow(quint32 converserId, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ChatWindow)
 {
+
     ui->setupUi(this);
     ui->sendButton->setDisabled(true);
+    setTheMessagesFormat();
+    scrollBar = ui->chatDisplay->verticalScrollBar();
     connect(ui->messageInput, &QTextEdit::textChanged, this, &ChatWindow::onTextChanged);
     //this->setWindowTitle(getUsernameAliasFromDatabase(converserId));
     this->setWindowTitle(MainWindow::friendsMap.value(converserId)->getAlias());
@@ -30,6 +34,13 @@ ChatWindow::ChatWindow(quint32 converserId, QWidget *parent) :
     ui->messageInput->installEventFilter(this);
 
     makeThread();
+}
+
+
+void ChatWindow::setTheMessagesFormat()
+{
+    incomingMessages.setForeground(QColor::fromRgb(0, 153, 0));
+    outgoingMessages.setForeground(Qt::red);
 }
 
 ChatWindow::~ChatWindow()
@@ -77,23 +88,41 @@ void ChatWindow::readNewMessages(quint32 lastMessageId)
             if (query.value("sender_id").toString() == QString::number(LoginPage::getUser().getId()))
             {
                 ui->chatDisplay->append("<b>Ja</b> (" + query.value("timestamp").toDateTime().toString("dd-MM-yyyy hh:mm:ss)"));
-                ui->chatDisplay->append("<font color=Green>" + query.value("message").toString() + "</font>");
+                ui->chatDisplay->setCurrentCharFormat(incomingMessages);
+                //ui->chatDisplay->append("<font color=Green>" + query.value("message").toString() + "</font>");
+                ui->chatDisplay->append(query.value("message").toString());
             }
             else
             {
                 ui->chatDisplay->append("<b>" + this->windowTitle() + "</b> (" +
                                         query.value("timestamp").toDateTime().toString("dd-MM-yyyy hh:mm:ss)"));
-                ui->chatDisplay->append("<font color=Red>" + query.value("message").toString() + "</font>");
+                ui->chatDisplay->setCurrentCharFormat(outgoingMessages);
+                //ui->chatDisplay->append("<font color=Red>" + query.value("message").toString() + "</font>");
+                ui->chatDisplay->append(query.value("message").toString());
             }
 
         }
     }
     lastReadMessageId = lastMessageId;
+
+    scrollBar->setValue(scrollBar->maximum());
 }
 
 void ChatWindow::onTextChanged()
 {
-    ui->sendButton->setDisabled(ui->messageInput->toPlainText().isEmpty());
+    QString text = ui->messageInput->toPlainText();
+    //text = text.trimmed(); // Usunięcie początkowych i końcowych białych znaków (w tym nowych wierszy)
+
+    bool containsOnlySpaces = true;
+    for (QChar ch : text) {
+        if (!ch.isSpace()) {
+            containsOnlySpaces = false;
+            break;
+        }
+    }
+
+    ui->sendButton->setDisabled(containsOnlySpaces);
+    //ui->sendButton->setDisabled(ui->messageInput->toPlainText().isEmpty());
 }
 
 void ChatWindow::on_sendButton_clicked()
@@ -128,10 +157,11 @@ void ChatWindow::getAllMessagesFromDatabaseAndDisplay()
     //WAŻNA WIADOMOŚĆ - WYŁĄCZONA CHWILOWO
     //qDebug() << "Jestem w metodzie ChatWindow::getAllMessagesFromDatabaseAndDisplay()";
 
+
+
     QSqlDatabase database(LoginPage::getDatabase());
     QSqlQuery query(database);
     QString allMessagesQuery = "SELECT * FROM " + QString::number(LoginPage::getUser().getId()) + "_chat_" + QString::number(converserId);
-
 
     if (query.exec(allMessagesQuery))
     {
@@ -140,18 +170,24 @@ void ChatWindow::getAllMessagesFromDatabaseAndDisplay()
             if (query.value("sender_id").toString() == QString::number(LoginPage::getUser().getId()))
             {
                 ui->chatDisplay->append("<b>Ja</b> (" + query.value("timestamp").toDateTime().toString("dd-MM-yyyy hh:mm:ss)"));
-                ui->chatDisplay->append("<font color=Green>" + query.value("message").toString() + "</font>");
+                //ui->chatDisplay->append("<font color=Green>" + query.value("message").toString() + "</font>");
+                ui->chatDisplay->setCurrentCharFormat(incomingMessages);
+                ui->chatDisplay->append(query.value("message").toString());
             }
             else
             {
                 ui->chatDisplay->append("<b>" + this->windowTitle() + "</b> (" +
                                         query.value("timestamp").toDateTime().toString("dd-MM-yyyy hh:mm:ss)"));
-                ui->chatDisplay->append("<font color=Red>" + query.value("message").toString() + "</font>");
+                //ui->chatDisplay->append("<font color=Red>" + query.value("message").toString() + "</font>");
+                ui->chatDisplay->setCurrentCharFormat(outgoingMessages);
+                ui->chatDisplay->append(query.value("message").toString());
             }
 
         }
         query.last();
         lastReadMessageId = query.value("message_id").toUInt();
+
+
         // WAŻNA WIADOMOŚĆ - WYŁĄCZONA CHWILOWO
         //qDebug() << "\tlastReadMessageId =" << lastReadMessageId;
     }

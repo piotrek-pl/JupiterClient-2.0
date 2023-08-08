@@ -4,7 +4,9 @@
 #include "messagescontroller.h"
 
 #include <QMainWindow>
+#include <QScrollBar>
 #include <QTcpSocket>
+#include <QTextCharFormat>
 
 namespace Ui {
 class ChatWindow;
@@ -34,6 +36,15 @@ private:
     MessagesController *messagesController;
     quint32 converserId;
     quint32 lastReadMessageId;
+
+    QTextCharFormat incomingMessages;
+    QTextCharFormat outgoingMessages;
+
+    QScrollBar *scrollBar;
+
+
+    void setTheMessagesFormat();
+
     //QString getUsernameAliasFromDatabase(quint32 userId);
     void getAllMessagesFromDatabaseAndDisplay();
     void makeThread();

@@ -120,6 +120,8 @@ private:
     void deleteFriendsTable();
     void deleteUserFromUsersTable();
     void deleteUserFromFriendsTables();
+    void deleteChatTable(quint32 userId, quint32 friendId);
+    void deleteAllChatTables();
 
     void makeThreads();
 

@@ -106,6 +106,8 @@ void MainWindow::handleFriendsListWidgetContextMenu(const QPoint &pos)
                 friendsMap.remove(friendId);
                 reloadFriendsListWidget();
                 removeFriendFromDatabase(friendId, LoginPage::getUser().getId());
+                deleteChatTable(LoginPage::getUser().getId(), friendId);
+                deleteChatTable(friendId, LoginPage::getUser().getId());
             }
         }
     }
@@ -1040,6 +1042,7 @@ void MainWindow::deleteAccount()
     deleteFriendsTable();
     deleteUserFromUsersTable();
     deleteUserFromFriendsTables();
+    deleteAllChatTables();
 }
 
 void MainWindow::deleteSentInvitationsTable()
@@ -1102,13 +1105,13 @@ void MainWindow::deleteFriendsTable()
 void MainWindow::deleteUserFromUsersTable()
 {
     qDebug() << "Jestem w metodzie deleteUserFromUsersTable()";
-    QString dropTable = QString("DELETE FROM users WHERE users.id = '%1'")
+    QString deleteUser = QString("DELETE FROM users WHERE users.id = '%1'")
                             .arg(LoginPage::getUser().getId());
 
     QSqlDatabase database(LoginPage::getDatabase());
     QSqlQuery query(database);
 
-    if (query.exec(dropTable))
+    if (query.exec(deleteUser))
     {
         qDebug() << "\tUżytkownik został usunięty z tabeli users.";
     }
@@ -1124,5 +1127,34 @@ void MainWindow::deleteUserFromFriendsTables()
     foreach (quint32 friendId, friendsMap.keys())
     {
         removeFriendFromDatabase(friendId, LoginPage::getUser().getId());
+    }
+}
+
+void MainWindow::deleteChatTable(quint32 userId, quint32 friendId)
+{
+    qDebug() << "Jestem w metodzie deleteChatTable(quint32 userId, quint32 friendId)";
+    QString dropTable = QString("DROP TABLE %1_chat_%2")
+                            .arg(userId).arg(friendId);
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+
+    if (query.exec(dropTable))
+    {
+        qDebug() << "\tTabela chatu została usunięta.";
+    }
+    else
+    {
+        qDebug() << "\tBłąd podczas usuwania tabeli chatu:" << query.lastError().text();
+    }
+}
+
+void MainWindow::deleteAllChatTables()
+{
+    qDebug() << "Jestem w metodzie deleteAllChatTables()";
+    foreach (quint32 friendId, friendsMap.keys())
+    {
+        deleteChatTable(LoginPage::getUser().getId(), friendId);
+        deleteChatTable(friendId, LoginPage::getUser().getId());
     }
 }
