@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -96,6 +99,7 @@ QMainWindow {
     <property name="title">
      <string>Account</string>
     </property>
+    <addaction name="actionLogout"/>
     <addaction name="actionDelete"/>
    </widget>
    <addaction name="menuContacts"/>
@@ -107,6 +111,12 @@ QMainWindow {
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="floatable">
+    <bool>true</bool>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -116,6 +126,7 @@ QMainWindow {
    <addaction name="actionSearchUser"/>
    <addaction name="actionIInvited"/>
    <addaction name="actionInvitedMe"/>
+   <addaction name="actionLogout"/>
    <addaction name="actionDelete"/>
   </widget>
   <action name="actionSearchUser">
@@ -154,13 +165,49 @@ QMainWindow {
     <string>I invited</string>
    </property>
   </action>
+  <action name="actionLogout">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/logout_icon.png</normaloff>:/images/logout_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Logout</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>false</bool>
+   </property>
+  </action>
   <action name="actionDelete">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="resource.qrc">
      <normaloff>:/images/delete_account_icon.png</normaloff>:/images/delete_account_icon.png</iconset>
    </property>
    <property name="text">
     <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string/>
+   </property>
+   <property name="autoRepeat">
+    <bool>true</bool>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

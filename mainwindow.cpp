@@ -269,13 +269,25 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::connectToServer()
+bool MainWindow::connectToServer()
 {
     socket = new QTcpSocket();
 
     connect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
     connect(socket, &QTcpSocket::disconnected, this, &MainWindow::socketDisconnected);
     socket->connectToHost("77.237.31.25", 1234);
+
+    if (socket->waitForConnected())
+    {
+        qDebug() << "Connected to the server!";
+        return true;
+    }
+    else
+    {
+        qDebug() << "Failed to connect to the server!";
+        return false;
+    }
+
 }
 
 void MainWindow::socketConnected()
@@ -1158,3 +1170,14 @@ void MainWindow::deleteAllChatTables()
         deleteChatTable(friendId, LoginPage::getUser().getId());
     }
 }
+
+void MainWindow::on_actionLogout_triggered()
+{
+    this->close();
+    LoginPage *loginPage = new LoginPage();
+    loginPage->show();
+
+    // trzeba pozamykac wszystkie połączenia z bazą
+    // na razie opcja wyłączona
+}
+

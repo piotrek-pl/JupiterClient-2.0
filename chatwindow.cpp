@@ -32,6 +32,7 @@ ChatWindow::ChatWindow(quint32 converserId, QWidget *parent) :
     socket = MainWindow::getSocket();
 
     ui->messageInput->installEventFilter(this);
+    ui->messageInput->setFocus();
 
     makeThread();
 }

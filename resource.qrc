@@ -11,5 +11,6 @@
         <file>images/invited_me_icon.png</file>
         <file>images/jupiter_icon.png</file>
         <file>images/delete_account_icon.png</file>
+        <file>images/logout_icon.png</file>
     </qresource>
 </RCC>
