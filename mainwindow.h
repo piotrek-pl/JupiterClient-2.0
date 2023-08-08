@@ -91,6 +91,7 @@ private:
     bool changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId);
     bool removeFriendFromDatabase(quint32 userId, quint32 friendId);
     bool addFriendToDatabase(quint32 userId, quint32 friendId);
+    void addChatTableToDatabase(quint32 userId, quint32 friendId);
 
     //void changeNewMessageState(quint32 userId, quint32 state);
     //void changeNewMessageState(quint32 friendId, bool state);
@@ -116,7 +117,9 @@ private:
 
     void deleteSentInvitationsTable();
     void deleteReceivedInvitationsTable();
+    void deleteFriendsTable();
     void deleteUserFromUsersTable();
+    void deleteUserFromFriendsTables();
 
     void makeThreads();
 

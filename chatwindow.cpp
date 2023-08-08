@@ -62,7 +62,7 @@ void ChatWindow::readNewMessages(quint32 lastMessageId)
     QSqlDatabase database(LoginPage::getDatabase());
     QSqlQuery query(database);
     QString unreadMessagesQuery = "SELECT * FROM " + QString::number(LoginPage::getUser().getId()) + "_chat_" + QString::number(converserId)
-            + " WHERE message_id >= " + QString::number(lastReadMessageId) + " AND message_id <= "
+            + " WHERE message_id > " + QString::number(lastReadMessageId) + " AND message_id <= "
             + QString::number(lastMessageId);
 
     qDebug() << unreadMessagesQuery;

@@ -159,8 +159,10 @@ void MainWindow::handleInvitedMeListWidgetContextMenu(const QPoint &pos)
     {
         qDebug() << "\tAccept - id:" << userId;
         addFriendToDatabase(LoginPage::getUser().getId(), userId);
+        addChatTableToDatabase(LoginPage::getUser().getId(), userId);
         removeInvitationFromDatabase(userId, "received");
         addFriendToDatabase(userId, LoginPage::getUser().getId());
+        addChatTableToDatabase(userId, LoginPage::getUser().getId());
         removeInvitationFromAnotherUsersTable(userId, "sent");
     }
     else if (rightClickItem && rightClickItem->text().contains("Decline"))
@@ -991,6 +993,33 @@ bool MainWindow::addFriendToDatabase(quint32 userId, quint32 friendId)
     return false;
 }
 
+void MainWindow::addChatTableToDatabase(quint32 userId, quint32 friendId)
+{
+    qDebug() << "Jestem w metodzie addChatTableToDatabase(quint32 userId, quint32 friendId)";
+
+    QString createChatTable = QString("CREATE TABLE IF NOT EXISTS jupiter.%1_chat_%2 ("
+                                      "message_id INT NOT NULL AUTO_INCREMENT, "
+                                      "sender_id INT NULL DEFAULT NULL, "
+                                      "timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+                                      "message TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, "
+                                      "`read` BOOLEAN NULL DEFAULT NULL, "
+                                      "PRIMARY KEY (message_id))")
+                                .arg(userId).arg(friendId);
+
+    qDebug() << "\t" << createChatTable;
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+    if (query.exec(createChatTable))
+    {
+        qDebug() << "\tTabela chatu została utworzona lub już istnieje.";
+    }
+    else
+    {
+        qDebug() << "\tDodawanie tabeli chatu zakończone niepowodzeniem" << query.lastError().text();
+    }
+}
+
 void MainWindow::on_actionDelete_triggered()
 {
     int result = QMessageBox::question(this, "Confirm Deletion",
@@ -1008,7 +1037,9 @@ void MainWindow::deleteAccount()
 {
     deleteSentInvitationsTable();
     deleteReceivedInvitationsTable();
+    deleteFriendsTable();
     deleteUserFromUsersTable();
+    deleteUserFromFriendsTables();
 }
 
 void MainWindow::deleteSentInvitationsTable()
@@ -1049,6 +1080,25 @@ void MainWindow::deleteReceivedInvitationsTable()
     }
 }
 
+void MainWindow::deleteFriendsTable()
+{
+    qDebug() << "Jestem w metodzie deleteFriendsTable()";
+    QString dropTable = QString("DROP TABLE %1_friends")
+                            .arg(LoginPage::getUser().getId());
+
+    QSqlDatabase database(LoginPage::getDatabase());
+    QSqlQuery query(database);
+
+    if (query.exec(dropTable))
+    {
+        qDebug() << "\tTabela friends została usunięta.";
+    }
+    else
+    {
+        qDebug() << "\tBłąd podczas usuwania tabeli friends:" << query.lastError().text();
+    }
+}
+
 void MainWindow::deleteUserFromUsersTable()
 {
     qDebug() << "Jestem w metodzie deleteUserFromUsersTable()";
@@ -1065,5 +1115,14 @@ void MainWindow::deleteUserFromUsersTable()
     else
     {
         qDebug() << "\tBłąd podczas usuwania użytkownika:" << query.lastError().text();
+    }
+}
+
+void MainWindow::deleteUserFromFriendsTables()
+{
+    qDebug() << "Jestem w metodzie deleteUserFromFriendsTables()";
+    foreach (quint32 friendId, friendsMap.keys())
+    {
+        removeFriendFromDatabase(friendId, LoginPage::getUser().getId());
     }
 }
