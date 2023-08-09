@@ -269,25 +269,13 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::connectToServer()
+void MainWindow::connectToServer()
 {
     socket = new QTcpSocket();
 
     connect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
     connect(socket, &QTcpSocket::disconnected, this, &MainWindow::socketDisconnected);
     socket->connectToHost("77.237.31.25", 1234);
-
-    if (socket->waitForConnected())
-    {
-        qDebug() << "Connected to the server!";
-        return true;
-    }
-    else
-    {
-        qDebug() << "Failed to connect to the server!";
-        return false;
-    }
-
 }
 
 void MainWindow::socketConnected()

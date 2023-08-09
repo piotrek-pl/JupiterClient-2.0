@@ -87,7 +87,7 @@ private:
 
 
 
-    bool connectToServer();
+    void connectToServer();
     void sendFirstMessage(quint32 senderId);
     void addFriendToList(QListWidgetItem *item, QString friendUsername, QIcon icon);
     bool changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId);
