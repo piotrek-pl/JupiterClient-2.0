@@ -25,12 +25,29 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    ////////// USTAWIENIE TIMERA ////////////
+    timer = new QTimer(this);
+    timer->setSingleShot(true);
+    timer->setInterval(3000);
+    connect(timer, &QTimer::timeout, this, &MainWindow::reconnectToServer);
+
+
     ui->setupUi(this);
     setWindowTitle(QString("%1 [id: %2]")
                    .arg(LoginPage::getUser().getUsername(),
                         QString::number(LoginPage::getUser().getId())));
 
+    ///////// SOCKET GLOBALNY ////////////
+    socket = new QTcpSocket();
+    connect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
+    connect(socket, &QTcpSocket::disconnected, this, &MainWindow::socketDisconnected);
     connectToServer();
+
+    if (!connected)
+    {
+        timer->start();
+    }
+
     friendsMap = getFriendsMap();
     sentInvitationsList = getInvitationsList("sent");
     receivedInvitationsList = getInvitationsList("received");
@@ -52,6 +69,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowIcon(QIcon(":/images/jupiter_icon.png"));
     //setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
+}
+
+void MainWindow::onTimeout()
+{
+    qDebug() << "Upłynęło 3000 ms.";
+}
+
+bool MainWindow::reconnectToServer()
+{
+    if (!connected)
+    {
+        qDebug() << "Jestem w reconnectToServer()";
+        connectToServer();
+    }
+    //QEventLoop loop;
+    //connect(timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer->start();
+    //loop.exec();
+    return true;
 }
 
 void MainWindow::handleFriendsListWidgetContextMenu(const QPoint &pos)
@@ -271,15 +307,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::connectToServer()
 {
-    socket = new QTcpSocket();
+    //socket = new QTcpSocket();
 
-    connect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
-    connect(socket, &QTcpSocket::disconnected, this, &MainWindow::socketDisconnected);
+    //connect(socket, &QTcpSocket::connected, this, &MainWindow::socketConnected);
+    //connect(socket, &QTcpSocket::disconnected, this, &MainWindow::socketDisconnected);
     socket->connectToHost("77.237.31.25", 1234);
 }
 
 void MainWindow::socketConnected()
 {
+    connected = true;
+    timer->stop();
+
     qDebug() << "Connected to server.";
     qDebug() << "localHostAddress =" << socket->localAddress().toString()
              << "localPort =" << socket->localPort();
@@ -553,6 +592,9 @@ void MainWindow::changeMessageStatusInTheDatabaseToRead(quint32 friendId)
 void MainWindow::socketDisconnected()
 {
     qDebug() << "Disconnected from server.";
+    connected = false;
+    reconnectToServer();
+    // OKNO BLOKUJĄCE
 }
 
 

@@ -71,6 +71,9 @@ private slots:
 
     void on_actionLogout_triggered();
 
+    void onTimeout();
+
+
 private:
     static QTcpSocket *socket;
     Ui::MainWindow *ui;
@@ -86,8 +89,14 @@ private:
 
 
 
+    QTimer *timer;
+    bool connected = false;
+
+
+
 
     void connectToServer();
+    bool reconnectToServer();
     void sendFirstMessage(quint32 senderId);
     void addFriendToList(QListWidgetItem *item, QString friendUsername, QIcon icon);
     bool changeUsernameAliasInTheDatabase(QString newAlias, quint32 friendId);
