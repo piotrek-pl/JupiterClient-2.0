@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->setSingleShot(true);
     timer->setInterval(3000);
     connect(timer, &QTimer::timeout, this, &MainWindow::reconnectToServer);
+    dialog = new ConnectionLostDialog(socket, this);
+    dialog->setParent(this);////
 
 
     ui->setupUi(this);
@@ -45,6 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if (!connected)
     {
+        dialog->label->setText("No connection to the server.");
+        this->setEnabled(false);
+
+        dialog->show();
         timer->start();
     }
 
@@ -69,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowIcon(QIcon(":/images/jupiter_icon.png"));
     //setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
+
 }
 
 void MainWindow::onTimeout()
@@ -80,6 +87,9 @@ bool MainWindow::reconnectToServer()
 {
     if (!connected)
     {
+        // ROZPORZĄDŹ TYM
+        //ConnectionLostDialog dialog(socket, this);
+        //dialog.exec();
         qDebug() << "Jestem w reconnectToServer()";
         connectToServer();
     }
@@ -316,6 +326,12 @@ void MainWindow::connectToServer()
 
 void MainWindow::socketConnected()
 {
+    if (dialog->isVisible())
+    {
+        dialog->close();
+    }
+    this->setEnabled(true);
+
     connected = true;
     timer->stop();
 
@@ -593,10 +609,17 @@ void MainWindow::socketDisconnected()
 {
     qDebug() << "Disconnected from server.";
     connected = false;
+    if (!dialog->isVisible())
+    {
+        dialog->label->setText("Connection to the server has been lost.");
+        dialog->show();
+
+        this->setEnabled(false);
+    }
+
     reconnectToServer();
     // OKNO BLOKUJĄCE
 }
-
 
 
 void MainWindow::on_friendsListWidget_itemDoubleClicked(QListWidgetItem *item)

@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     chatwindow.cpp \
+    connectionlostdialog.cpp \
     extendedqlistwidgetitem.cpp \
     friend.cpp \
     friendsstatuses.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
 
 HEADERS += \
     chatwindow.h \
+    connectionlostdialog.h \
     extendedqlistwidgetitem.h \
     friend.h \
     friendsstatuses.h \

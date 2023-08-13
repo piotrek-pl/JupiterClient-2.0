@@ -6,6 +6,7 @@
 #include "chatwindow.h"
 #include "invitation.h"
 #include "invitationcontroller.h"
+#include "connectionlostdialog.h"
 
 #include <QMainWindow>
 #include <QListWidgetItem>
@@ -91,6 +92,7 @@ private:
 
     QTimer *timer;
     bool connected = false;
+    ConnectionLostDialog *dialog;
 
 
 
@@ -139,6 +141,7 @@ private:
     //enum ID { NO_ID = 0 };
     enum MESSAGE_STATE { AVAILABLE = 1,
                          UNAVAILABLE = 0 };
+
 
 };
 
