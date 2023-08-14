@@ -20,6 +20,8 @@ private:
     QTcpSocket *socket;
     QVBoxLayout *layout;
 
+    void centerDialog(QWidget *parent);
+
 
 };
 

@@ -11,6 +11,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QTcpSocket>
+#include <QMoveEvent>
 
 namespace Ui {
 class MainWindow;
@@ -141,6 +142,8 @@ private:
     //enum ID { NO_ID = 0 };
     enum MESSAGE_STATE { AVAILABLE = 1,
                          UNAVAILABLE = 0 };
+protected:
+    void moveEvent(QMoveEvent* event) override;
 
 
 };

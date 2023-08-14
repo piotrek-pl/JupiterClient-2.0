@@ -31,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->setInterval(3000);
     connect(timer, &QTimer::timeout, this, &MainWindow::reconnectToServer);
     dialog = new ConnectionLostDialog(socket, this);
-    dialog->setParent(this);////
 
 
     ui->setupUi(this);
@@ -77,6 +76,14 @@ MainWindow::MainWindow(QWidget *parent) :
     //setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
 
 }
+
+
+void MainWindow::moveEvent(QMoveEvent* event)
+{
+    QPoint new_position = event->pos() + dialog->pos() - event->oldPos();
+    dialog->move(new_position);
+}
+
 
 void MainWindow::onTimeout()
 {
