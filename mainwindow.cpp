@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->setSingleShot(true);
     timer->setInterval(3000);
     connect(timer, &QTimer::timeout, this, &MainWindow::reconnectToServer);
-    dialog = new ConnectionLostDialog(socket, this);
+    dialog = new ConnectionLostDialog(this);
 
 
     ui->setupUi(this);

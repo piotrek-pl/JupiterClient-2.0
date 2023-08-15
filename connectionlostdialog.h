@@ -10,14 +10,13 @@
 class ConnectionLostDialog : public QDialog
 {
 public:
-    ConnectionLostDialog(QTcpSocket *socket, QWidget *parent = nullptr);
+    ConnectionLostDialog(QWidget *parent = nullptr);
     QLabel *label;
 
 private slots:
     //void showDialog();
 
 private:
-    QTcpSocket *socket;
     QVBoxLayout *layout;
 
     void centerDialog(QWidget *parent);

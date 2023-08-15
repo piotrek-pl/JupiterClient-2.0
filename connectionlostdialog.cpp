@@ -3,8 +3,8 @@
 #include <QMainWindow>
 #include <QMoveEvent>
 
-ConnectionLostDialog::ConnectionLostDialog(QTcpSocket *socket, QWidget *parent)
-    : QDialog(parent), socket(socket)
+ConnectionLostDialog::ConnectionLostDialog(QWidget *parent)
+    : QDialog(parent)
 {
     //setWindowTitle("Connection Lost");
     //setGeometry(0, 200, 300, 100);
