@@ -159,7 +159,6 @@ void ChatWindow::getAllMessagesFromDatabaseAndDisplay()
     //qDebug() << "Jestem w metodzie ChatWindow::getAllMessagesFromDatabaseAndDisplay()";
 
 
-
     QSqlDatabase database(LoginPage::getDatabase());
     QSqlQuery query(database);
     QString allMessagesQuery = "SELECT * FROM " + QString::number(LoginPage::getUser().getId()) + "_chat_" + QString::number(converserId);

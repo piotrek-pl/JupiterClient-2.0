@@ -53,6 +53,8 @@ private:
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 
     bool eventFilter(QObject *obj, QEvent *event);
+
+    DatabaseConnectionManager databaseConnectionManager;
 };
 
 #endif // CHATWINDOW_H

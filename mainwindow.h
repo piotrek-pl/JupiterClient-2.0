@@ -50,6 +50,7 @@ public slots:
     void changeSentInvitationList();
     void changeReceivedInvitationList();
 
+
 private slots:
     void socketConnected();
     void socketDisconnected();
@@ -75,6 +76,9 @@ private slots:
 
     void onTimeout();
 
+    void handleDatabaseConnectionLost();
+    void handleDatabaseConnectionRestored();
+
 
 private:
     static QTcpSocket *socket;
@@ -94,6 +98,9 @@ private:
     QTimer *timer;
     bool connected = false;
     ConnectionLostDialog *dialog;
+
+    DatabaseConnectionManager *databaseConnectionManager;
+    bool databaseConnected = false;
 
 
 

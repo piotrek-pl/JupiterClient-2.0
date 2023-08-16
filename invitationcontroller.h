@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QSqlDatabase>
+#include "databaseconnectionmanager.h"
 #include "invitation.h"
 
 class InvitationController : public QObject
@@ -22,7 +23,7 @@ private:
     QSqlDatabase database;
     void checkInvitations();
     QList<Invitation *> getInvitationsList(QString invitationType);
-
+    DatabaseConnectionManager databaseConnectionManager;
 
 };
 

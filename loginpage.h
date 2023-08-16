@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtSql>
+#include "mainwindow.h"
 #include "signupwindow.h"
 #include "user.h"
 
@@ -33,5 +34,6 @@ private:
     static QSqlDatabase database;
     static User owner;
     void closeEvent(QCloseEvent *event);
+    MainWindow *mainWindow;
 };
 #endif // LOGINPAGE_H

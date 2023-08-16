@@ -1,6 +1,7 @@
 #ifndef MESSAGESCONTROLLER_H
 #define MESSAGESCONTROLLER_H
 
+#include "databaseconnectionmanager.h"
 #include <QObject>
 #include <QSqlDatabase>
 #include <QDebug>
@@ -25,6 +26,8 @@ private:
     quint32 converserId;
     quint32 lastReadMessageId;
     QSqlDatabase database;
+
+    DatabaseConnectionManager databaseConnectionManager;
 
 };
 

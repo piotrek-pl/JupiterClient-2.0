@@ -1,6 +1,8 @@
 #ifndef FRIENDSSTATUSES_H
 #define FRIENDSSTATUSES_H
 
+#include "databaseconnectionmanager.h"
+
 #include <QObject>
 #include <QSqlDatabase>
 
@@ -9,6 +11,7 @@ class FriendsStatuses : public QObject
     Q_OBJECT
 public:
     explicit FriendsStatuses(QObject *parent = nullptr);
+    DatabaseConnectionManager databaseConnectionManager;
 
 signals:
     //void statusChanged();
@@ -31,6 +34,8 @@ private:
     QMap<quint32, bool> getMessagesStatusesMap();
     QMap<quint32, bool> getFriendOfFriendMap();
     QList<quint32> getFriendsIdNumbersList();
+
+
 };
 
 #endif // FRIENDSSTATUSES_H

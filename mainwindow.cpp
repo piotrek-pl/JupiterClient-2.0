@@ -74,9 +74,32 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowIcon(QIcon(":/images/jupiter_icon.png"));
     //setWindowFlags(windowFlags() &(~Qt::WindowMaximizeButtonHint));
+    QObject::connect(&friendsStatuses->databaseConnectionManager, &DatabaseConnectionManager::databaseConnectionLost,
+                     this, &MainWindow::handleDatabaseConnectionLost);
+    QObject::connect(&friendsStatuses->databaseConnectionManager, &DatabaseConnectionManager::databaseConnectionRestored,
+                     this, &MainWindow::handleDatabaseConnectionRestored);
 
 }
 
+void MainWindow::handleDatabaseConnectionLost()
+{
+    qDebug() << "Jestem w MainWindow::handleDatabaseConnectionLost()";
+    if (this->isEnabled())
+    {
+        this->setEnabled(false);
+    }
+
+}
+
+void MainWindow::handleDatabaseConnectionRestored()
+{
+    qDebug() << "Jestem w MainWindow::handleDatabaseConnectionRestored()";
+    if (!this->isEnabled())
+    {
+        LoginPage::connectToDatabase(LoginPage::getDatabase());
+        this->setEnabled(true);
+    }
+}
 
 void MainWindow::moveEvent(QMoveEvent* event)
 {
@@ -89,6 +112,8 @@ void MainWindow::onTimeout()
 {
     qDebug() << "Upłynęło 3000 ms.";
 }
+
+
 
 bool MainWindow::reconnectToServer()
 {
@@ -483,9 +508,6 @@ void MainWindow::makeThreads()
     QObject::connect(invitationController, &InvitationController::receivedInvitationsChanged, this, &MainWindow::changeReceivedInvitationList);
 
     secondThread->start();
-
-
-
 }
 
 void MainWindow::changeAvailabilityStatus(quint32 id, bool available)

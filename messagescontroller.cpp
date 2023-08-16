@@ -25,13 +25,18 @@ void MessagesController::run()
 {
     qDebug() << "Jestem w metodzie MessagesController::run()";
     qDebug() << "\tNazwa połączenia z bazą -" << QString("messagesControllerThreadUser%1").arg(converserId);
+    LoginPage::connectToDatabase(database);
     checkNewMessages();
 }
 
 void MessagesController::checkNewMessages()
 {
-    QString messageIdQuery = "SELECT message_id FROM " + QString::number(LoginPage::getUser().getId()) + "_chat_" + QString::number(converserId);
-    LoginPage::connectToDatabase(database);
+    if (!databaseConnectionManager.checkConnection(database))
+    {
+        databaseConnectionManager.reconnectDatabase(database);
+    }
+
+    QString messageIdQuery = "SELECT message_id FROM " + QString::number(LoginPage::getUser().getId()) + "_chat_" + QString::number(converserId);    
     QSqlQuery query(database);
 
     while(true)

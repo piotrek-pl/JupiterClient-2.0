@@ -36,6 +36,8 @@ void FriendsStatuses::checkStatuses()
 
     while (true)
     {
+
+
         if (currentAvailabilityFriendsMap != availabilityFriendsMap)
         {
             QMapIterator<quint32, bool> it1(currentAvailabilityFriendsMap);
@@ -159,6 +161,12 @@ void FriendsStatuses::checkStatuses()
 
 QMap<quint32, bool> FriendsStatuses::getAvailabilityFriendsMap()
 {
+    if (!databaseConnectionManager.checkConnection(database))
+    {
+        emit databaseConnectionManager.databaseConnectionLost();
+        databaseConnectionManager.reconnectDatabase(database);
+    }
+
     QMap<quint32, bool> availabilityFriendsMap;
     QString friendsAvailability = QString("SELECT %1_friends.id, "
                                           "users.available "
@@ -183,6 +191,12 @@ QMap<quint32, bool> FriendsStatuses::getAvailabilityFriendsMap()
 
 QMap<quint32, bool> FriendsStatuses::getMessagesStatusesMap()
 {
+    if (!databaseConnectionManager.checkConnection(database))
+    {
+        emit databaseConnectionManager.databaseConnectionLost();
+        databaseConnectionManager.reconnectDatabase(database);
+    }
+
     QMap<quint32, bool> messagesStatusesMap;
     QString messagesStatuses = QString("SELECT %1_friends.id, "
                                               "%1_friends.is_new_message "
@@ -204,6 +218,12 @@ QMap<quint32, bool> FriendsStatuses::getMessagesStatusesMap()
 
 QList<quint32> FriendsStatuses::getFriendsIdNumbersList()
 {
+    if (!databaseConnectionManager.checkConnection(database))
+    {
+        emit databaseConnectionManager.databaseConnectionLost();
+        databaseConnectionManager.reconnectDatabase(database);
+    }
+
     QList<quint32> friendsIdNumbersList;
     QString friendsIdNumbers = QString("SELECT %1_friends.id "
                                        "FROM %1_friends")

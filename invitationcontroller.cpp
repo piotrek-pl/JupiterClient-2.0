@@ -94,6 +94,11 @@ void InvitationController::checkInvitations()
 
 QList<Invitation *> InvitationController::getInvitationsList(QString invitationType)
 {
+    if (!databaseConnectionManager.checkConnection(database))
+    {
+        databaseConnectionManager.reconnectDatabase(database);
+    }
+
     QList<Invitation *> invitationsList;
     QString invitations = QString("SELECT %1_%2_invitations.invitation_id, "
                                              "%1_%2_invitations.id, "

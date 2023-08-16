@@ -66,7 +66,7 @@ void LoginPage::on_loginButton_clicked()
             owner.setUsername(query.value("username").toString());
             qDebug() << "Logged in as userId:" << owner.getId();
             this->close();
-            MainWindow *mainWindow = new MainWindow;
+            mainWindow = new MainWindow;
             mainWindow->show();
         }
         else
