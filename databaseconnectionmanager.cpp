@@ -28,11 +28,13 @@ bool DatabaseConnectionManager::checkConnection(QSqlDatabase database)
     QSqlQuery query("SELECT 1", database);
     if (query.exec() && query.next() && query.value(0).toInt() == 1)
     {
+
         return true;
     }
     else
     {
         qDebug() << "Błąd podczas sprawdzania połączenia.";
+        emit databaseConnectionLost();
         return false;
     }
 }

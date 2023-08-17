@@ -163,7 +163,7 @@ QMap<quint32, bool> FriendsStatuses::getAvailabilityFriendsMap()
 {
     if (!databaseConnectionManager.checkConnection(database))
     {
-        emit databaseConnectionManager.databaseConnectionLost();
+        //emit databaseConnectionManager.databaseConnectionLost();
         databaseConnectionManager.reconnectDatabase(database);
     }
 
@@ -193,7 +193,7 @@ QMap<quint32, bool> FriendsStatuses::getMessagesStatusesMap()
 {
     if (!databaseConnectionManager.checkConnection(database))
     {
-        emit databaseConnectionManager.databaseConnectionLost();
+        //emit databaseConnectionManager.databaseConnectionLost();
         databaseConnectionManager.reconnectDatabase(database);
     }
 
@@ -220,7 +220,7 @@ QList<quint32> FriendsStatuses::getFriendsIdNumbersList()
 {
     if (!databaseConnectionManager.checkConnection(database))
     {
-        emit databaseConnectionManager.databaseConnectionLost();
+        //emit databaseConnectionManager.databaseConnectionLost();
         databaseConnectionManager.reconnectDatabase(database);
     }
 

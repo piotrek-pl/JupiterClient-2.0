@@ -97,13 +97,9 @@ private:
 
     QTimer *timer;
     bool connected = false;
-    ConnectionLostDialog *dialog;
+    ConnectionLostDialog *errorConnectionDialog;
 
-    DatabaseConnectionManager *databaseConnectionManager;
-    bool databaseConnected = false;
-
-
-
+    //DatabaseConnectionManager *databaseConnectionManager;
 
     void connectToServer();
     bool reconnectToServer();

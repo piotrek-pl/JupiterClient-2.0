@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->setSingleShot(true);
     timer->setInterval(3000);
     connect(timer, &QTimer::timeout, this, &MainWindow::reconnectToServer);
-    dialog = new ConnectionLostDialog(this);
+    errorConnectionDialog = new ConnectionLostDialog(this);
 
 
     ui->setupUi(this);
@@ -46,10 +46,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if (!connected)
     {
-        dialog->label->setText("No connection to the server.");
+        errorConnectionDialog->label->setText("No connection to the server.");
         this->setEnabled(false);
 
-        dialog->show();
+        errorConnectionDialog->show();
         timer->start();
     }
 
@@ -83,28 +83,40 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::handleDatabaseConnectionLost()
 {
+    //// POKAŻ QDIALOG
     qDebug() << "Jestem w MainWindow::handleDatabaseConnectionLost()";
     if (this->isEnabled())
     {
         this->setEnabled(false);
     }
-
+    if (!errorConnectionDialog->isVisible())
+    {
+        errorConnectionDialog->label->setText("No connection to the database.");
+        errorConnectionDialog->show();
+    }
 }
 
 void MainWindow::handleDatabaseConnectionRestored()
 {
+    /// SCHOWAJ QDIALOG
     qDebug() << "Jestem w MainWindow::handleDatabaseConnectionRestored()";
     if (!this->isEnabled())
     {
         LoginPage::connectToDatabase(LoginPage::getDatabase());
         this->setEnabled(true);
     }
+    if (errorConnectionDialog->isVisible())
+    {
+        errorConnectionDialog->close();
+    }
+
+    socket->disconnectFromHost();
 }
 
 void MainWindow::moveEvent(QMoveEvent* event)
 {
-    QPoint new_position = event->pos() + dialog->pos() - event->oldPos();
-    dialog->move(new_position);
+    QPoint new_position = event->pos() + errorConnectionDialog->pos() - event->oldPos();
+    errorConnectionDialog->move(new_position);
 }
 
 
@@ -358,9 +370,9 @@ void MainWindow::connectToServer()
 
 void MainWindow::socketConnected()
 {
-    if (dialog->isVisible())
+    if (errorConnectionDialog->isVisible())
     {
-        dialog->close();
+        errorConnectionDialog->close();
     }
     this->setEnabled(true);
 
@@ -638,10 +650,10 @@ void MainWindow::socketDisconnected()
 {
     qDebug() << "Disconnected from server.";
     connected = false;
-    if (!dialog->isVisible())
+    if (!errorConnectionDialog->isVisible())
     {
-        dialog->label->setText("Connection to the server has been lost.");
-        dialog->show();
+        errorConnectionDialog->label->setText("Connection to the server has been lost.");
+        errorConnectionDialog->show();
 
         this->setEnabled(false);
     }
