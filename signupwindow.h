@@ -1,6 +1,7 @@
 #ifndef SIGNUPWINDOW_H
 #define SIGNUPWINDOW_H
 
+#include "databaseconnectionmanager.h"
 #include <QMainWindow>
 
 namespace Ui {
@@ -25,6 +26,7 @@ private:
     void createFriendsTable(quint32 userId);
     void createReceivedInvitationsTable(quint32 userId);
     void createSentInvitationsTable(quint32 userId);
+    DatabaseConnectionManager *databaseConnectionManager;
 
 signals:
     void closed();

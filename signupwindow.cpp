@@ -12,6 +12,7 @@ SignUpWindow::SignUpWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowIcon(QIcon(":/images/jupiter_icon.png"));
+    databaseConnectionManager = new DatabaseConnectionManager();
 }
 
 SignUpWindow::~SignUpWindow()
@@ -27,6 +28,14 @@ void SignUpWindow::SignUpWindow::closeEvent(QCloseEvent *event)
 
 void SignUpWindow::on_signUpButton_clicked()
 {
+    if (!databaseConnectionManager->checkConnection(LoginPage::getDatabase()))
+    {
+        if (!LoginPage::connectToDatabase(LoginPage::getDatabase()))
+        {
+            QMessageBox::critical(nullptr, "Connection Error", "No connection to the database.");
+            return;
+        }
+    }
     QString username = ui->usernameInput->text();
     QString password = ui->passwordInput->text();
     QString confirmation = ui->confirmInput->text();

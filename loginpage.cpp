@@ -21,7 +21,7 @@ LoginPage::LoginPage(QWidget *parent)
     else
     {
         qDebug() << "Failed to connect to database.";
-        ::exit(1);
+        //::exit(1);
         // błąd połączenia z bazą danych (reconnect)
         // ui->loginButton->setEnabled(false);
 
@@ -31,6 +31,7 @@ LoginPage::LoginPage(QWidget *parent)
     connect(ui->passwordInput, SIGNAL(returnPressed()), ui->loginButton, SIGNAL(clicked()));
 
     setWindowIcon(QIcon(":/images/jupiter_icon.png"));
+    databaseConnectionManager = new DatabaseConnectionManager();
 }
 
 LoginPage::~LoginPage()
@@ -52,6 +53,15 @@ bool LoginPage::connectToDatabase(QSqlDatabase database)
 
 void LoginPage::on_loginButton_clicked()
 {
+    if (!databaseConnectionManager->checkConnection(database))
+    {
+        if (!connectToDatabase(database))
+        {
+            QMessageBox::critical(nullptr, "Connection Error", "No connection to the database.");
+            return;
+        }
+    }
+
     QString username = ui->userInput->text();
     QString password = ui->passwordInput->text();
     QString logOn = QString("SELECT id, username, password FROM users WHERE username = '%1' AND password = '%2'")
@@ -78,6 +88,15 @@ void LoginPage::on_loginButton_clicked()
 
 void LoginPage::on_signUpButton_clicked()
 {
+    if (!databaseConnectionManager->checkConnection(database))
+    {
+        if (!connectToDatabase(database))
+        {
+            QMessageBox::critical(nullptr, "Connection Error", "No connection to the database.");
+            return;
+        }
+    }
+
     signUpWindow = new SignUpWindow;
     connect(signUpWindow, &SignUpWindow::closed, this, &LoginPage::onSignUpWindowClosed);
     signUpWindow->show();

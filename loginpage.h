@@ -35,5 +35,7 @@ private:
     static User owner;
     void closeEvent(QCloseEvent *event);
     MainWindow *mainWindow;
+    DatabaseConnectionManager *databaseConnectionManager;
+
 };
 #endif // LOGINPAGE_H
