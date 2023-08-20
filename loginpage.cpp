@@ -118,3 +118,37 @@ void LoginPage::closeEvent(QCloseEvent *event)
         signUpWindow->close();
     }
 }
+
+void LoginPage::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Tab)
+    {
+        QWidget::keyPressEvent(event); // Przekazanie zdarzenia dalej dla domyślnej obsługi Tab
+    }
+    else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+    {
+        QPushButton *button = qobject_cast<QPushButton*>(focusWidget());
+        if (button)
+        {
+            button->click();
+        }
+    }
+}
+
+bool LoginPage::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Tab)
+        {
+            QWidget *nextFocusable = QApplication::focusWidget()->nextInFocusChain();
+            if (nextFocusable)
+            {
+                nextFocusable->setFocus();
+            }
+            return true; // Zatrzymaj dalszą obsługę zdarzenia
+        }
+    }
+    return QWidget::eventFilter(obj, event);
+}

@@ -37,5 +37,9 @@ private:
     MainWindow *mainWindow;
     DatabaseConnectionManager *databaseConnectionManager;
 
+protected:
+   void keyPressEvent(QKeyEvent *event) override;
+   bool eventFilter(QObject *obj, QEvent *event) override;
+
 };
 #endif // LOGINPAGE_H
