@@ -12,5 +12,6 @@
         <file>images/jupiter_icon.png</file>
         <file>images/delete_account_icon.png</file>
         <file>images/logout_icon.png</file>
+        <file>images/signup_background.jpg</file>
     </qresource>
 </RCC>
