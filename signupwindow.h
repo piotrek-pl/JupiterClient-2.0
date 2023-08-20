@@ -28,6 +28,10 @@ private:
     void createSentInvitationsTable(quint32 userId);
     DatabaseConnectionManager *databaseConnectionManager;
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
+
 signals:
     void closed();
 private slots:

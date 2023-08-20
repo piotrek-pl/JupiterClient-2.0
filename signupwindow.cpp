@@ -258,4 +258,18 @@ void SignUpWindow::createSentInvitationsTable(quint32 userId)
     }
 }
 
+void SignUpWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+    {
+        if (ui->signUpButton)
+        {
+            ui->signUpButton->click();
+        }
+    }
+    else
+    {
+        QWidget::keyPressEvent(event);
+    }
+}
 

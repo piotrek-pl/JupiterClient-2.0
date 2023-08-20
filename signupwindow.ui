@@ -13,6 +13,11 @@
   <property name="windowTitle">
    <string>SignUp</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">#SignUpWindow {
+border: 1px solid rgb(0, 0, 0);
+background-color: white; }</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="usernameLabel">
     <property name="geometry">
@@ -98,8 +103,20 @@
       <height>24</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid rgb(0, 0, 0);
+border-radius: 5px;
+background-color: rgb(75, 127, 186);
+color: white;</string>
+    </property>
     <property name="text">
      <string>SignUp</string>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>
