@@ -111,6 +111,11 @@ void ChatWindow::readNewMessages(quint32 lastMessageId)
 
 void ChatWindow::onTextChanged()
 {
+    if (MainWindow::friendsMap.value(converserId)->isNewMessage())
+    {
+        MainWindow::changeMessageStatusInTheDatabaseToRead(converserId);
+    }
+
     QString text = ui->messageInput->toPlainText();
     //text = text.trimmed(); // Usunięcie początkowych i końcowych białych znaków (w tym nowych wierszy)
 
